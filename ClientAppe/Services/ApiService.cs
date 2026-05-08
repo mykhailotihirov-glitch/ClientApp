@@ -1,5 +1,6 @@
 ﻿using ClientAppe.Models;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -195,6 +196,29 @@ namespace ClientAppe.Services
             {
                 return false;
             }
+        }
+        public async Task<string> UploadImageAsync(string localFilePath)
+        {
+            if (string.IsNullOrEmpty(localFilePath) || !File.Exists(localFilePath))
+                return null;
+
+            using var content = new MultipartFormDataContent();
+            var fileStream = File.OpenRead(localFilePath);
+            var streamContent = new StreamContent(fileStream);
+
+            content.Add(streamContent, "file", Path.GetFileName(localFilePath));
+
+            // ТУТ ЗМІНА: Використовуємо існуючий клієнт. Він сам додасть "https://localhost:44333/api/"
+            var response = await _httpClient.PostAsync("media/upload", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                using var jsonDoc = JsonDocument.Parse(jsonResponse);
+                return jsonDoc.RootElement.GetProperty("fileName").GetString();
+            }
+
+            return null;
         }
     }
 }

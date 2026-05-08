@@ -1,9 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using Avalonia.Media.Imaging;
 using ClientAppe.Models;
 using ClientAppe.Services;
-using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ClientAppe.ViewModels
 {
@@ -93,7 +96,7 @@ namespace ClientAppe.ViewModels
             LoadData();
         }
 
-        private void LoadData()
+        async void LoadData()
         {
             // Категорії меню
             Categories = new ObservableCollection<string> { "Всі", "Перші страви", "Основні страви", "Напої" };
@@ -106,6 +109,7 @@ namespace ClientAppe.ViewModels
                 {
                     var itemInCart = _cartService.Items.FirstOrDefault(c => c.Name == food.Name);
                     food.Quantity = itemInCart != null ? itemInCart.Quantity : 0;
+                    food.ImageBitmap = await LoadImageAsync(food.ImagePath);
                 }
 
                 MenuItems = new ObservableCollection<FoodModel>(_allMenuItems);
@@ -115,6 +119,24 @@ namespace ClientAppe.ViewModels
                 _allMenuItems = new List<FoodModel>();
                 MenuItems = new ObservableCollection<FoodModel>();
             }
+        }
+        public async Task<Bitmap> LoadImageAsync(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return null;
+
+            string imageUrl = $"https://localhost:44333/Images/{fileName}";
+
+            using var client = new HttpClient();
+            var response = await client.GetAsync(imageUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var stream = await response.Content.ReadAsStreamAsync();
+                return new Bitmap(stream);
+            }
+
+            return null;
         }
     }
 }

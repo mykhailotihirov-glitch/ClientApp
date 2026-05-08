@@ -10,6 +10,9 @@ namespace ClientAppe.Models
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Category { get; set; }
+        public string ImagePath { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Avalonia.Media.Imaging.Bitmap ImageBitmap { get; set; }
 
         private int _quantity;
         public int Quantity

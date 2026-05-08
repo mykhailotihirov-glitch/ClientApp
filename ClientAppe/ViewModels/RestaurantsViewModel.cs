@@ -2,6 +2,9 @@
 using ClientAppe.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Media.Imaging;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +97,6 @@ namespace ClientAppe.ViewModels
         {
             var result = _allRestaurants.AsEnumerable();
 
-            // ЗАСТОСОВУЄМО ФІЛЬТР
             if (ActiveFilter != "Всі заклади")
             {
                 // Тепер ми шукаємо точний збіг по Категорії
@@ -104,7 +106,6 @@ namespace ClientAppe.ViewModels
                 );
             }
 
-            // ЗАСТОСОВУЄМО СОРТУВАННЯ до вже відфільтрованого списку
             if (ActiveSort == "Rating")
             {
                 result = result.OrderByDescending(r => r.Rating);
@@ -114,7 +115,6 @@ namespace ClientAppe.ViewModels
                 result = result.OrderBy(r => r.DeliveryTime);
             }
 
-            // ОНОВЛЮЄМО ЕКРАН
             var finalFilteredList = result.ToList();
             Restaurants = new ObservableCollection<RestaurantModel>(finalFilteredList);
             FoundCountText = $"Знайдено {Restaurants.Count} закладів";
@@ -128,6 +128,13 @@ namespace ClientAppe.ViewModels
                 if (data != null)
                 {
                     _allRestaurants = data;
+
+                    // ТУТ ЗМІНА: Завантажуємо картинки для кожного ресторану
+                    foreach (var restaurant in _allRestaurants)
+                    {
+                        restaurant.ImageBitmap = await LoadImageAsync(restaurant.ImagePath);
+                    }
+
                     ApplyFiltersAndSort();
                 }
             }
@@ -136,6 +143,24 @@ namespace ClientAppe.ViewModels
                 FoundCountText = "Помилка зв'язку з сервером";
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
+        }
+        public async Task<Bitmap> LoadImageAsync(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return null;
+
+            string imageUrl = $"https://localhost:44333/Images/{fileName}";
+
+            using var client = new HttpClient();
+            var response = await client.GetAsync(imageUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var stream = await response.Content.ReadAsStreamAsync();
+                return new Bitmap(stream);
+            }
+
+            return null;
         }
     }
 }

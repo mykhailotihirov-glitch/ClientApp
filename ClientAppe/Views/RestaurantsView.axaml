@@ -146,13 +146,19 @@
                                         Margin="0,0,10,10">
                                     <StackPanel>
                                         <Panel Height="200">
-                                            <Border CornerRadius="24,24,0,0" 
-                                                    Background="#F1F5F9">
-                                                <PathIcon Data="{StaticResource image_regular}" 
-                                                          Width="40" 
-                                                          Height="40"
-                                                          Foreground="#CBD5E0"/>
-                                            </Border>
+<Border CornerRadius="24,24,0,0" 
+        Background="#F1F5F9"
+        ClipToBounds="True">
+    <Panel>
+        <PathIcon Data="{StaticResource image_regular}" 
+                  Width="40" 
+                  Height="40"
+                  Foreground="#CBD5E0"/>
+        
+        <Image Source="{Binding ImageBitmap}" 
+               Stretch="UniformToFill"/>
+    </Panel>
+</Border>
                                             <Border Background="#FF6B00"
                                                     CornerRadius="12" 
                                                     HorizontalAlignment="Right"
