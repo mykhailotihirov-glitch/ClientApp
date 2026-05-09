@@ -20,7 +20,7 @@ namespace ClientAppe.Services
 
         public ApiService(){}
 
-        public async Task<List<RestaurantModel>> GetRestaurantsAsync()
+        public virtual async Task<List<RestaurantModel>> GetRestaurantsAsync()
         {
             try
             {
@@ -43,7 +43,7 @@ namespace ClientAppe.Services
             }
         }
 
-        public async Task<bool> CreateOrderAsync(OrderModel order)
+        public virtual async Task<bool> CreateOrderAsync(OrderModel order)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace ClientAppe.Services
             }
         }
 
-        public async Task<List<OrderModel>> GetOrdersAsync()
+        public virtual async Task<List<OrderModel>> GetOrdersAsync()
         {
             try
             {
@@ -80,7 +80,7 @@ namespace ClientAppe.Services
                 return new List<OrderModel>();
             }
         }
-        public async Task<List<OrderModel>> PollOrdersAsync(string lastUpdate)
+        public virtual async Task<List<OrderModel>> PollOrdersAsync(string lastUpdate)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace ClientAppe.Services
                 return new List<OrderModel>();
             }
         }
-        public async Task<bool> LoginAsync(string email, string password)
+        public virtual async Task<bool> LoginAsync(string email, string password)
         {
             try
             {
@@ -137,13 +137,13 @@ namespace ClientAppe.Services
             }
         }
 
-        public async Task<UserModel> GetProfileAsync()
+        public virtual async Task<UserModel> GetProfileAsync()
         {
             // повертаємоюзера
             await Task.Delay(100);
             return CurrentUser ?? new UserModel();
         }
-        public async Task<bool> UpdateProfileAsync(UserModel updatedUser)
+        public virtual async Task<bool> UpdateProfileAsync(UserModel updatedUser)
         {
             try
             {
@@ -172,7 +172,7 @@ namespace ClientAppe.Services
                 return false;
             }
         }
-        internal async Task<bool> RegisterAsync(string? username, string? email, string? password)
+        internal virtual async Task<bool> RegisterAsync(string? username, string? email, string? password)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace ClientAppe.Services
                 return false;
             }
         }
-        public async Task<string> UploadImageAsync(string localFilePath)
+        public virtual async Task<string> UploadImageAsync(string localFilePath)
         {
             if (string.IsNullOrEmpty(localFilePath) || !File.Exists(localFilePath))
                 return null;
@@ -208,7 +208,6 @@ namespace ClientAppe.Services
 
             content.Add(streamContent, "file", Path.GetFileName(localFilePath));
 
-            // ТУТ ЗМІНА: Використовуємо існуючий клієнт. Він сам додасть "https://localhost:44333/api/"
             var response = await _httpClient.PostAsync("media/upload", content);
 
             if (response.IsSuccessStatusCode)

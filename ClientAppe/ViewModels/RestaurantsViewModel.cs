@@ -13,7 +13,7 @@ namespace ClientAppe.ViewModels
 {
     public class RestaurantsViewModel : ViewModelBase
     {
-        private readonly ApiService _apiService = new ApiService();
+        private readonly ApiService _apiService;
         private readonly MainViewModel _mainViewModel;
 
         // Зберігаємо повний список ресторанів
@@ -53,15 +53,15 @@ namespace ClientAppe.ViewModels
         public ICommand SortCommand { get; }
         public ICommand NavigateToDetailsCommand { get; }
 
-        public RestaurantsViewModel(MainViewModel mainVM, string initialCategory = "Всі заклади")
+        public RestaurantsViewModel(MainViewModel mainVM, string initialCategory = "Всі заклади", ApiService apiService = null)
         {
-            _mainViewModel = mainVM ?? throw new ArgumentNullException(nameof(mainVM));
+            _apiService = apiService ?? new ApiService();
+            _mainViewModel = mainVM;
 
             // Просто зберігаємо передану категорію
             ActiveFilter = initialCategory;
             ActiveSort = "Rating";
 
-            // КОМАНДА ФІЛЬТРАЦІЇ
             FilterCategoryCommand = new RelayCommand(category =>
             {
                 if (category is string catStr)
@@ -71,7 +71,6 @@ namespace ClientAppe.ViewModels
                 }
             });
 
-            // КОМАНДА СОРТУВАННЯ
             SortCommand = new RelayCommand(sortType =>
             {
                 if (sortType is string sortStr)
@@ -81,7 +80,6 @@ namespace ClientAppe.ViewModels
                 }
             });
 
-            // КОМАНДА НАВІГАЦІЇ
             NavigateToDetailsCommand = new RelayCommand(param =>
             {
                 if (param is RestaurantModel selected)
@@ -120,7 +118,7 @@ namespace ClientAppe.ViewModels
             FoundCountText = $"Знайдено {Restaurants.Count} закладів";
         }
 
-        private async void LoadData()
+        public async void LoadData()
         {
             try
             {
@@ -129,7 +127,6 @@ namespace ClientAppe.ViewModels
                 {
                     _allRestaurants = data;
 
-                    // ТУТ ЗМІНА: Завантажуємо картинки для кожного ресторану
                     foreach (var restaurant in _allRestaurants)
                     {
                         restaurant.ImageBitmap = await LoadImageAsync(restaurant.ImagePath);
@@ -156,8 +153,15 @@ namespace ClientAppe.ViewModels
 
             if (response.IsSuccessStatusCode)
             {
-                using var stream = await response.Content.ReadAsStreamAsync();
-                return new Bitmap(stream);
+                try
+                {
+                    using var stream = await response.Content.ReadAsStreamAsync();
+                    return new Bitmap(stream);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             return null;
