@@ -50,7 +50,7 @@ namespace ClientAppe.ViewModels
             CurrentView = new CheckoutViewModel(_cartService, this);
         }
 
-        // ВІДПРАВКА НА СЕРВЕР
+        // Відправка замовлення на сервер
         public async Task ConfirmOrderAsync(string deliveryAddress)
         {
             if (_cartService.Items.Count == 0) return;
@@ -61,7 +61,7 @@ namespace ClientAppe.ViewModels
 
                 OrderedItems = _cartService.Items.ToList(),
 
-                TotalPrice = (double)_cartService.GetTotal(),
+                TotalPrice = _cartService.GetTotal(),
 
                 DeliveryAddress = string.IsNullOrWhiteSpace(deliveryAddress) ? "Самовивіз" : deliveryAddress,
 
