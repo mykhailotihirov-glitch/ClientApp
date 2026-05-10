@@ -13,9 +13,7 @@ namespace ClientAppe.Tests
     [TestFixture]
     public class RestaurantsIntegrationTests
     {
-        // ====================================================================
-        // ЗАВДАННЯ 3: Тест виключно з Mock-об'єктами (Аналіз швидкості)
-        // ====================================================================
+        // Тест виключно з Mock-об'єктами (Аналіз швидкості)
         [Test]
         public async Task LoadRestaurants_WithMOCK_ShouldBeVeryFast()
         {
@@ -38,9 +36,7 @@ namespace ClientAppe.Tests
             TestContext.WriteLine($"Час виконання з MOCK: {stopwatch.ElapsedMilliseconds} мс");
         }
 
-        // ====================================================================
-        // ЗАВДАННЯ 4: Такий самий тест з Real-об'єктами (Аналіз швидкості)
-        // ====================================================================
+        // Такий самий тест з Real-об'єктами (Аналіз швидкості)
         [Test]
         public async Task LoadRestaurants_WithREAL_API_ShouldTakeLonger()
         {
@@ -56,9 +52,7 @@ namespace ClientAppe.Tests
             TestContext.WriteLine($"Час виконання з REAL API: {stopwatch.ElapsedMilliseconds} мс");
         }
 
-        // ====================================================================
-        // ЗАВДАННЯ 2 (Тест 1): Інтеграційний тест логіки фільтрації
-        // ====================================================================
+        // Інтеграційний тест логіки фільтрації
         [Test]
         public async Task FilterRestaurants_ByCategory_MatchingList()
         {
@@ -81,9 +75,7 @@ namespace ClientAppe.Tests
             Assert.That(viewModel.Restaurants.All(r => r.Category == "Фаст-фуд"), Is.True);
         }
 
-        // ====================================================================
-        // ЗАВДАННЯ 2 (Тест 2): Інтеграційний тест логіки сортування
-        // ====================================================================
+        // Інтеграційний тест логіки сортування
         [Test]
         public async Task SortRestaurants_ByRating_HighestFirst()
         {
@@ -102,7 +94,6 @@ namespace ClientAppe.Tests
 
             viewModel.SortCommand.Execute("Rating");
 
-            // Новий синтаксис NUnit 4
             Assert.That(viewModel.Restaurants.Count, Is.EqualTo(3));
             Assert.That(viewModel.Restaurants[0].Name, Is.EqualTo("Топ Ресторан"));
             Assert.That(viewModel.Restaurants[0].Rating, Is.EqualTo(5.0));
