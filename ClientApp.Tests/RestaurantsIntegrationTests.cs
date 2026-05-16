@@ -15,7 +15,7 @@ namespace ClientAppe.Tests
     {
         // Тест виключно з Mock-об'єктами (Аналіз швидкості)
         [Test]
-        public async Task LoadRestaurants_WithMOCK_ShouldBeVeryFast()
+        public async Task LoadRestaurants_WithMOCK()
         {
             var mockApiService = new Mock<ApiService>();
             var fakeRestaurants = new List<RestaurantModel>
@@ -38,7 +38,7 @@ namespace ClientAppe.Tests
 
         // Такий самий тест з Real-об'єктами (Аналіз швидкості)
         [Test]
-        public async Task LoadRestaurants_WithREAL_API_ShouldTakeLonger()
+        public async Task LoadRestaurants_WithREAL_API()
         {
             var realApiService = new ApiService();
             var viewModel = new RestaurantsViewModel(null, "Всі заклади", realApiService);
