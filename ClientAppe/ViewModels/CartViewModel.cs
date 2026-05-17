@@ -18,8 +18,15 @@ namespace ClientAppe.ViewModels
         public decimal TotalCost => ItemsCost;
         public string ItemsCountText => $"Кошик ({CartItems.Count})";
 
-
         public bool IsCartEmpty => CartItems.Count == 0;
+
+        // ДОДАНО: Властивість для красивого виводу повідомлення про помилку
+        private string _warningMessage;
+        public string WarningMessage
+        {
+            get => _warningMessage;
+            set { _warningMessage = value; OnPropertyChanged(nameof(WarningMessage)); }
+        }
 
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
@@ -34,6 +41,7 @@ namespace ClientAppe.ViewModels
             _cartService.CartUpdated += () =>
             {
                 RefreshTotals();
+                WarningMessage = string.Empty; // Очищаємо помилку, якщо кошик оновився
             };
 
             // ЛОГІКА ВИДАЛЕННЯ
@@ -67,12 +75,20 @@ namespace ClientAppe.ViewModels
             {
                 if (!IsCartEmpty)
                 {
+                    var currentUser = ApiService.CurrentUser;
+
+                    if (currentUser == null || string.IsNullOrWhiteSpace(currentUser.Phone))
+                    {
+                        WarningMessage = "Вкажіть номер телефону в 'Профіль -> Редагування'!";
+                        return;
+                    }
+
+                    WarningMessage = string.Empty;
                     windowViewModel.NavigateToCheckout();
                 }
             });
         }
 
-        // Допоміжний метод для оновлення всіх цифр на екрані
         private void RefreshTotals()
         {
             OnPropertyChanged(nameof(ItemsCost));

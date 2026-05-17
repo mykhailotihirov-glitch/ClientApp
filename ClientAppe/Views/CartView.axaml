@@ -173,6 +173,11 @@
                                 Classes="checkoutBtn" 
                                 Margin="0,10,0,0"
                                 Command="{Binding ProceedToCheckoutCommand}"/>
+						<TextBlock Text="{Binding WarningMessage}"
+                                   Foreground="Red"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"
+                                   IsVisible="{Binding WarningMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                     </StackPanel>
                 </Border>
             </Grid>
