@@ -1,4 +1,6 @@
-﻿namespace ClientAppe.Models
+﻿using System.Text.Json.Serialization;
+
+namespace ClientAppe.Models
 {
     public class UserModel
     {
@@ -10,5 +12,8 @@
         public string RegistrationDate { get; set; }
         public string Address { get; set; }
         public string Token { get; set; }
+        public string Role { get; set; }
+        [JsonIgnore]
+        public bool IsOwner => Role == "Owner";
     }
 }
