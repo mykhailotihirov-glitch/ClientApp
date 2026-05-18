@@ -248,5 +248,19 @@
         <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="Transparent"/>
         </Style>
+		<Style Selector="TextBox">
+			<Setter Property="Foreground" Value="#1E293B"/>
+			<Setter Property="CaretBrush" Value="#5849E8"/>
+		</Style>
+
+		<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="BorderBrush" Value="#5849E8"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
     </UserControl.Styles>
 </UserControl>

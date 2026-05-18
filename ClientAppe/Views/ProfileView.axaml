@@ -4,293 +4,274 @@
              x:Class="ClientAppe.Views.ProfileView"
              x:DataType="vm:ProfileViewModel">
 
-    <Grid>
-        <DockPanel Background="#F7F9FC">
-            <Border DockPanel.Dock="Top"
-                    Background="White" 
+	<Grid>
+		<DockPanel Background="#F7F9FC">
+			<Border DockPanel.Dock="Top"
+                    Background="White"
                     Height="70"
                     BoxShadow="0 2 10 0 #10000000">
-                <Grid ColumnDefinitions="Auto, *, Auto" Margin="30,0">
-                    <StackPanel Orientation="Horizontal" 
+				<Grid ColumnDefinitions="Auto, *, Auto" Margin="30,0">
+					<StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <Border Width="40"
+						<Border Width="40"
                                 Height="40"
-                                Background="#5849E8" 
+                                Background="#5849E8"
                                 CornerRadius="10"
                                 Margin="0,0,10,0">
-                            <PathIcon Data="{StaticResource home_regular}"
+							<PathIcon Data="{StaticResource home_regular}"
                                       Foreground="White"
                                       Width="20"
                                       Height="20"/>
-                        </Border>
-                        <TextBlock Text="FoodHub"
+						</Border>
+						<TextBlock Text="FoodHub"
                                    FontSize="22"
                                    FontWeight="ExtraBold"
                                    Foreground="#1A1A1A"
                                    VerticalAlignment="Center"/>
-                    </StackPanel>
+					</StackPanel>
 
-                    <StackPanel Grid.Column="2"
+					<StackPanel Grid.Column="2"
                                 Orientation="Horizontal"
-                                Spacing="25" 
+                                Spacing="25"
                                 VerticalAlignment="Center">
-                        <Button Content="Головна"
+						<Button Content="Головна"
                                 Classes="navLink"
                                 Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToHomeCommand}"/>
-                        <Button Content="Профіль" 
-                                Classes="navLink" 
+						<Button Content="Профіль"
+                                Classes="navLink"
                                 Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToProfileCommand}"/>
-                        <Button Content="Замовлення" 
-                                Classes="navLink" 
+						<Button Content="Замовлення"
+                                Classes="navLink"
                                 Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToOrdersCommand}"/>
-                        <Button Background="#F1F5F9" 
-                                Padding="12,8" 
-                                CornerRadius="10" 
+						<Button Background="#F1F5F9"
+                                Padding="12,8"
+                                CornerRadius="10"
                                 Cursor="Hand"
                                 Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToCartCommand}">
-                            <TextBlock Text="Кошик" 
+							<TextBlock Text="Кошик"
                                        Foreground="#1A1A1A"
                                        VerticalAlignment="Center"/>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
+						</Button>
+					</StackPanel>
+				</Grid>
+			</Border>
 
-            <Grid ColumnDefinitions="300, *"
+			<Grid ColumnDefinitions="300, *"
                   Margin="40">
-                <Border Grid.Column="0" 
-                        Background="White" 
+
+				<Border Grid.Column="0"
+                        Background="White"
                         CornerRadius="20"
-                        Padding="15" 
+                        Padding="15"
                         VerticalAlignment="Top"
                         BoxShadow="0 5 15 0 #08000000">
-                    <StackPanel Spacing="5">
-                        <Button Classes="menuBtn active">
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="12">
-                                <PathIcon Data="{StaticResource person_regular}" 
-                                          Width="18"/>
-                                <TextBlock Text="Профіль" 
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Classes="menuBtn logout" 
-                                Command="{Binding LogoutCommand}">
-                            <StackPanel Orientation="Horizontal" 
-                                        Spacing="12">
-                                <PathIcon Data="{StaticResource arrow_reply_regular}"
-                                          Width="18" 
-                                          Foreground="#EF4444"/>
-                                <TextBlock Text="Вийти з акаунту"
-                                           Foreground="#EF4444" 
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </Border>
+					<StackPanel Spacing="5">
 
-                <Border Grid.Column="1"
-                        Margin="30,0,0,0" 
-                        Background="White" 
-                        CornerRadius="20" 
+						<Button Classes="menuBtn active" Command="{Binding ShowProfileTabCommand}">
+							<StackPanel Orientation="Horizontal" Spacing="12">
+								<PathIcon Data="{StaticResource person_regular}" Width="18"/>
+								<TextBlock Text="Профіль" VerticalAlignment="Center"/>
+							</StackPanel>
+						</Button>
+
+						<Button Classes="menuBtn"
+                                Command="{Binding ShowApplicationTabCommand}"
+                                IsVisible="{Binding !User.IsOwner}">
+							<StackPanel Orientation="Horizontal" Spacing="12">
+								<PathIcon Data="{StaticResource home_regular}" Width="18"/>
+								<TextBlock Text="Додати ресторан" VerticalAlignment="Center"/>
+							</StackPanel>
+						</Button>
+
+						<Button Classes="menuBtn logout"
+                                Command="{Binding LogoutCommand}">
+							<StackPanel Orientation="Horizontal" Spacing="12">
+								<PathIcon Data="{StaticResource arrow_reply_regular}" Width="18" Foreground="#EF4444"/>
+								<TextBlock Text="Вийти з акаунту" Foreground="#EF4444" VerticalAlignment="Center"/>
+							</StackPanel>
+						</Button>
+					</StackPanel>
+				</Border>
+
+				<Border Grid.Column="1"
+                        Margin="30,0,0,0"
+                        Background="White"
+                        CornerRadius="20"
                         Padding="40"
                         BoxShadow="0 5 15 0 #08000000">
-                    <StackPanel Spacing="35">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBlock Text="Профіль"
-                                       FontSize="28" 
-                                       FontWeight="Bold" 
-                                       Foreground="#1E293B"/>
-                            <Button Grid.Column="1"
-                                    Content="Редагувати"
-                                    Classes="editBtn"
-                                    Command="{Binding EditProfileCommand}"/>
-                        </Grid>
 
-                        <StackPanel Orientation="Horizontal"
-                                    Spacing="25">
-                            <Border Width="100" 
-                                    Height="100" 
-                                    CornerRadius="50"
-                                    Background="#5849E8">
-                                <TextBlock Text="{Binding UserInitial}"
-                                           Foreground="White" 
-                                           FontSize="40" 
-                                           FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{Binding User.Login}"
-                                           FontSize="26" 
-                                           FontWeight="Bold"
-                                           Foreground="#1E293B"/>
-                                <TextBlock Text="{Binding User.RegistrationDate, StringFormat='З нами з \{0\}'}" 
-                                           Foreground="#94A3B8" 
-                                           FontSize="14" 
-                                           Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </StackPanel>
+					<Grid>
 
-                        <Separator Background="#F1F5F9"/>
+						<StackPanel Spacing="35" IsVisible="{Binding !IsApplicationFormVisible}">
+							<Grid ColumnDefinitions="*, Auto">
+								<TextBlock Text="Профіль" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
+								<Button Grid.Column="1" Content="Редагувати" Classes="editBtn" Command="{Binding EditProfileCommand}"/>
+							</Grid>
 
-                        <StackPanel Spacing="20">
-                            <Border Classes="infoField">
-                                <StackPanel>
-                                    <TextBlock Text="Email"
-                                                       Classes="fieldLabel"/>
-                                    <TextBlock
-                                                       Text="{Binding User.Email}" 
-                                                       Classes="fieldValue"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Classes="infoField">
-                                <StackPanel>
-                                    <TextBlock Text="Телефон"
-                                               Classes="fieldLabel"/>
-                                    <TextBlock Text="{Binding User.Phone}"
-                                               Classes="fieldValue"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </DockPanel>
+							<StackPanel Orientation="Horizontal" Spacing="25">
+								<Border Width="100" Height="100" CornerRadius="50" Background="#5849E8">
+									<TextBlock Text="{Binding UserInitial}" Foreground="White" FontSize="40" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</Border>
+								<StackPanel VerticalAlignment="Center">
+									<TextBlock Text="{Binding User.Login}" FontSize="26" FontWeight="Bold" Foreground="#1E293B"/>
+									<TextBlock Text="{Binding User.RegistrationDate, StringFormat='З нами з \{0\}'}" Foreground="#94A3B8" FontSize="14" Margin="0,5,0,0"/>
+								</StackPanel>
+							</StackPanel>
 
-        <Border Background="#99000000" 
-                IsVisible="{Binding IsEditing}" 
-                ZIndex="100">
-            <Border Background="White"
-                    CornerRadius="20"
-                    Width="350"
-                    Padding="24" 
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center" 
-                    BoxShadow="0 10 30 0 #40000000">
-<StackPanel Spacing="16">
-    <TextBlock Text="Редагувати профіль"
-               FontSize="20" 
-               FontWeight="Bold" 
-               Foreground="#1E293B"/>
+							<Separator Background="#F1F5F9"/>
 
-    <TextBox Text="{Binding EditLogin}"
-             Watermark="Логін"
-             CornerRadius="8"
-             Padding="10"/>
+							<StackPanel Spacing="20">
+								<Border Classes="infoField">
+									<StackPanel>
+										<TextBlock Text="Email" Classes="fieldLabel"/>
+										<TextBlock Text="{Binding User.Email}" Classes="fieldValue"/>
+									</StackPanel>
+								</Border>
+								<Border Classes="infoField">
+									<StackPanel>
+										<TextBlock Text="Телефон" Classes="fieldLabel"/>
+										<TextBlock Text="{Binding User.Phone}" Classes="fieldValue"/>
+									</StackPanel>
+								</Border>
+							</StackPanel>
+						</StackPanel>
 
-    <StackPanel Spacing="2">
-        <TextBox Text="{Binding EditPhone}"
-                 Watermark="Номер телефону" 
-                 CornerRadius="8"
-                 Padding="10"/>
-    </StackPanel>
+						<StackPanel Spacing="20" IsVisible="{Binding IsApplicationFormVisible}">
+							<TextBlock Text="Стати партнером FoodHub" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
+							<TextBlock Text="Щоб отримати можливість керувати власним рестораном на платформі, будь ласка, заповніть заявку нижче. Наші менеджери розглянуть її найближчим часом."
+                                       Foreground="#64748B" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
-    <StackPanel Spacing="2">
-        <TextBox Text="{Binding EditPassword}"
-                 Watermark="Новий пароль"
-                 PasswordChar="*" 
-                 CornerRadius="8"
-                 Padding="10"/>
-        <TextBlock Text="{Binding ErrorMessage}"
-                   Foreground="#EF4444"
-                   FontSize="12"
-                   Margin="5,2,0,0"
-                   TextWrapping="Wrap"/>
-    </StackPanel>
-    
-    <Grid ColumnDefinitions="*, *" 
-          Margin="0,10,0,0">
-        
-        <Button Grid.Column="0"
-                Content="Скасувати" 
-                Command="{Binding CancelEditCommand}" 
-                Background="Transparent" 
-                Foreground="#64748B" 
-                HorizontalAlignment="Stretch" 
-                HorizontalContentAlignment="Center" 
-                Cursor="Hand"
-                Margin="0,0,5,0"/>
-                
-        <Button Grid.Column="1"
-                Content="Зберегти" 
-                Command="{Binding SaveProfileCommand}" 
-                Classes="primaryBtn" 
-                Cursor="Hand"
-                Margin="5,0,0,0"/>
-    </Grid>
-</StackPanel>
-            </Border>
-        </Border>
-    </Grid>
-    
-    <UserControl.Styles>
-        <Style Selector="Button.navLink">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="Padding" Value="15,10"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-        </Style>
-        <Style Selector="Button.navLink:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="Foreground" Value="#5849E8"/>
-        </Style>
+							<TextBlock Text="{Binding AppMessage}"
+                                       Foreground="{Binding AppMessageColor}"
+                                       IsVisible="{Binding AppMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                       FontWeight="SemiBold" TextWrapping="Wrap" FontSize="16"/>
 
-        <Style Selector="Button.menuBtn">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Padding" Value="15,12"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-        </Style>
-        <Style Selector="Button.menuBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="Foreground" Value="#5849E8"/>
-        </Style>
-        <Style Selector="Button.menuBtn.active /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#EEF2FF"/>
-            <Setter Property="Foreground" Value="#5849E8"/>
-        </Style>
+							<TextBox Text="{Binding AppFullName}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Ваше ПІБ (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
+							<TextBox Text="{Binding AppPhone}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Контактний телефон (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
+							<TextBox Text="{Binding AppEmail}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Електронна пошта (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
 
-        <Style Selector="Border.infoField">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="25,18"/>
-        </Style>
-        <Style Selector="TextBlock.fieldLabel">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#94A3B8"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
-        </Style>
-        <Style Selector="TextBlock.fieldValue">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Foreground" Value="#1E293B"/>
-        </Style>
+							<TextBox Text="{Binding AppDescription}"
+                                     Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1"
+                                     Watermark="Короткий опис закладу: назва, тип кухні (Необов'язково)"
+                                     CornerRadius="10" Padding="15" Background="#F8FAFC"
+                                     Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
 
-        <Style Selector="Button.editBtn">
-            <Setter Property="Background" Value="#5849E8"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="25,12"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style Selector="Button.editBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#4F46E5"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button.primaryBtn">
-    <Setter Property="Background" Value="#5849E8"/>
-    <Setter Property="Foreground" Value="White"/>
-    <Setter Property="Padding" Value="0,10"/>
-    <Setter Property="CornerRadius" Value="8"/>
-    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-</Style>
-<Style Selector="Button.primaryBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="#E65C00"/>
-    <Setter Property="Foreground" Value="White"/>
-</Style>
-    </UserControl.Styles>
+							<Button Content="Відправити заявку" Classes="primaryBtn" Padding="25,15" Margin="0,15,0,0" Command="{Binding SubmitApplicationCommand}"/>
+						</StackPanel>
+
+					</Grid>
+				</Border>
+			</Grid>
+		</DockPanel>
+
+		<Border Background="#99000000" IsVisible="{Binding IsEditing}" ZIndex="100">
+			<Border Background="White" CornerRadius="20" Width="350" Padding="24" VerticalAlignment="Center" HorizontalAlignment="Center" BoxShadow="0 10 30 0 #40000000">
+				<StackPanel Spacing="16">
+					<TextBlock Text="Редагувати профіль" FontSize="20" FontWeight="Bold" Foreground="#1E293B"/>
+
+					<TextBox Text="{Binding EditLogin}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Логін" CornerRadius="8" Padding="10"/>
+
+					<StackPanel Spacing="2">
+						<TextBox Text="{Binding EditPhone}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Номер телефону" CornerRadius="8" Padding="10"/>
+					</StackPanel>
+
+					<StackPanel Spacing="2">
+						<TextBox Text="{Binding EditPassword}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Новий пароль" PasswordChar="*" CornerRadius="8" Padding="10"/>
+						<TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="12" Margin="5,2,0,0" TextWrapping="Wrap"/>
+					</StackPanel>
+
+					<Grid ColumnDefinitions="*, *" Margin="0,10,0,0">
+						<Button Grid.Column="0" Content="Скасувати" Command="{Binding CancelEditCommand}" Background="Transparent" Foreground="#64748B" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand" Margin="0,0,5,0"/>
+						<Button Grid.Column="1" Content="Зберегти" Command="{Binding SaveProfileCommand}" Classes="primaryBtn" Cursor="Hand" Margin="5,0,0,0"/>
+					</Grid>
+				</StackPanel>
+			</Border>
+		</Border>
+	</Grid>
+
+	<UserControl.Styles>
+		<Style Selector="Button.navLink">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#64748B"/>
+			<Setter Property="Padding" Value="15,10"/>
+			<Setter Property="CornerRadius" Value="10"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+		</Style>
+		<Style Selector="Button.navLink:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#F8FAFC"/>
+			<Setter Property="Foreground" Value="#5849E8"/>
+		</Style>
+
+		<Style Selector="Button.menuBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="Padding" Value="15,12"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="Foreground" Value="#64748B"/>
+		</Style>
+		<Style Selector="Button.menuBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#F8FAFC"/>
+			<Setter Property="Foreground" Value="#5849E8"/>
+		</Style>
+		<Style Selector="Button.menuBtn.active /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#EEF2FF"/>
+			<Setter Property="Foreground" Value="#5849E8"/>
+		</Style>
+
+		<Style Selector="Border.infoField">
+			<Setter Property="Background" Value="#F8FAFC"/>
+			<Setter Property="CornerRadius" Value="15"/>
+			<Setter Property="Padding" Value="25,18"/>
+		</Style>
+		<Style Selector="TextBlock.fieldLabel">
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Foreground" Value="#94A3B8"/>
+			<Setter Property="Margin" Value="0,0,0,6"/>
+		</Style>
+		<Style Selector="TextBlock.fieldValue">
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+
+		<Style Selector="Button.editBtn">
+			<Setter Property="Background" Value="#5849E8"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Padding" Value="25,12"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+		<Style Selector="Button.editBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#4F46E5"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+
+		<Style Selector="Button.primaryBtn">
+			<Setter Property="Background" Value="#5849E8"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Padding" Value="0,10"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="Button.primaryBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#4F46E5"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="TextBox">
+			<Setter Property="Foreground" Value="#1E293B"/>
+			<Setter Property="CaretBrush" Value="#5849E8"/>
+		</Style>
+
+		<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="BorderBrush" Value="#5849E8"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+	</UserControl.Styles>
 </UserControl>

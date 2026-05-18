@@ -220,5 +220,34 @@ namespace ClientAppe.Services
 
             return null;
         }
+        public async Task<bool> SubmitPartnerApplicationAsync(string name, string phone, string email, string desc)
+        {
+            try
+            {
+                var data = new { FullName = name, Phone = phone, Email = email, Description = desc };
+                string json = JsonSerializer.Serialize(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PostAsync("applications/submit", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch { return false; }
+        }
+
+        public async Task<string> GetApplicationStatusAsync()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync("applications/my-status");
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    return doc.RootElement.GetProperty("status").GetString();
+                }
+                return "None";
+            }
+            catch { return "None"; }
+        }
     }
 }

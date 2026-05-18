@@ -2,6 +2,7 @@
 using ClientAppe.Models;
 using ClientAppe.Services;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ClientAppe.ViewModels
 {
@@ -17,7 +18,6 @@ namespace ClientAppe.ViewModels
             set { _user = value; OnPropertyChanged(); OnPropertyChanged(nameof(UserInitial)); }
         }
 
-        // ДОДАНО ДЛЯ РЕДАГУВАННЯ
         private bool _isEditing;
         public bool IsEditing
         {
@@ -54,10 +54,38 @@ namespace ClientAppe.ViewModels
         }
         public string UserInitial => !string.IsNullOrEmpty(User?.Login) ? User.Login[0].ToString().ToUpper() : "?";
 
+        private bool _isApplicationFormVisible;
+        public bool IsApplicationFormVisible
+        {
+            get => _isApplicationFormVisible;
+            set { _isApplicationFormVisible = value; OnPropertyChanged(); }
+        }
+
+        private string _appFullName;
+        public string AppFullName { get => _appFullName; set { _appFullName = value; OnPropertyChanged(); } }
+
+        private string _appPhone;
+        public string AppPhone { get => _appPhone; set { _appPhone = value; OnPropertyChanged(); } }
+
+        private string _appEmail;
+        public string AppEmail { get => _appEmail; set { _appEmail = value; OnPropertyChanged(); } }
+
+        private string _appDescription;
+        public string AppDescription { get => _appDescription; set { _appDescription = value; OnPropertyChanged(); } }
+
+        private string _appMessage;
+        public string AppMessage { get => _appMessage; set { _appMessage = value; OnPropertyChanged(); } }
+
+        private string _appMessageColor = "#EF4444";
+        public string AppMessageColor { get => _appMessageColor; set { _appMessageColor = value; OnPropertyChanged(); } }
+
         public ICommand EditProfileCommand { get; }
         public ICommand CancelEditCommand { get; }
         public ICommand SaveProfileCommand { get; }
         public ICommand LogoutCommand { get; }
+        public ICommand ShowProfileTabCommand { get; }
+        public ICommand ShowApplicationTabCommand { get; }
+        public ICommand SubmitApplicationCommand { get; }
 
         public ProfileViewModel(MainViewModel mainViewModel)
         {
@@ -72,15 +100,11 @@ namespace ClientAppe.ViewModels
                 IsEditing = true;
             });
 
-            // Скасовуємо
             CancelEditCommand = new RelayCommand(o => { IsEditing = false; });
 
-            // Зберігаємо
             SaveProfileCommand = new RelayCommand(async o => {
-                // Очищуємо помилки
                 ErrorMessage = "";
 
-                // Валідація телефону
                 string phonePattern = @"^\+?[0-9]{10,12}$";
                 if (!Regex.IsMatch(EditPhone, phonePattern))
                 {
@@ -88,7 +112,6 @@ namespace ClientAppe.ViewModels
                     return;
                 }
 
-                // Валідація пароля (якщо він введений)
                 if (!string.IsNullOrWhiteSpace(EditPassword))
                 {
                     string passPattern = @"^[a-zA-Z0-9]{8,16}$";
@@ -99,7 +122,6 @@ namespace ClientAppe.ViewModels
                     }
                 }
 
-                // 3. Відправка на сервер
                 var updatedUser = new UserModel
                 {
                     Id = User.Id,
@@ -119,10 +141,71 @@ namespace ClientAppe.ViewModels
                     IsEditing = false;
                 }
             });
+
             LogoutCommand = new RelayCommand(o =>
             {
                 ApiService.CurrentUser = null;
                 _mainViewModel.NavigateTo(new AuthViewModel(_mainViewModel), false);
+            });
+
+            ShowProfileTabCommand = new RelayCommand(o =>
+            {
+                IsApplicationFormVisible = false;
+                AppMessage = "";
+            });
+
+            ShowApplicationTabCommand = new RelayCommand(o =>
+            {
+                IsApplicationFormVisible = true;
+                AppFullName = "";
+                AppPhone = User?.Phone;
+                AppEmail = User?.Email;
+            });
+
+            SubmitApplicationCommand = new RelayCommand(async o =>
+            {
+                // 1. Перевірка на порожні поля
+                if (string.IsNullOrWhiteSpace(AppFullName) || string.IsNullOrWhiteSpace(AppPhone) || string.IsNullOrWhiteSpace(AppEmail))
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Будь ласка, заповніть усі обов'язкові поля!";
+                    return;
+                }
+
+                string phonePattern = @"^\+?[0-9]{10,12}$";
+                if (!Regex.IsMatch(AppPhone, phonePattern))
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Некоректний номер телефону (напр. +380954123456)";
+                    return;
+                }
+
+                string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                if (!Regex.IsMatch(AppEmail, emailPattern))
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Некоректний формат електронної пошти (напр. example@gmail.com)";
+                    return;
+                }
+
+                AppMessageColor = "#10B981";
+                AppMessage = "Відправка...";
+
+                bool success = await _apiService.SubmitPartnerApplicationAsync(AppFullName, AppPhone, AppEmail, AppDescription);
+
+                if (success)
+                {
+                    AppMessage = "Заявку успішно відправлено! Очікуйте на рішення.";
+
+                    await Task.Delay(1500);
+                    IsApplicationFormVisible = false;
+                    AppMessage = "";
+                }
+                else
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Помилка відправки. Можливо, ваша заявка вже знаходиться на розгляді.";
+                }
             });
         }
 
