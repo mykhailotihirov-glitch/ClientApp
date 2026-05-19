@@ -293,6 +293,7 @@
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#E2E8F0"/>
+			<Setter Property="Cursor" Value="Hand"/>
         </Style>
 
         <Style Selector="Button.addBtn">
@@ -301,6 +302,7 @@
             <Setter Property="Padding" Value="25,10"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="Button.addBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#2D3748"/>
@@ -315,6 +317,7 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#E2E8F0"/>
+			<Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="Button.backBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#F8FAFC"/>
@@ -328,6 +331,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style Selector="Button.counterBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">

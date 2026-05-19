@@ -6,85 +6,53 @@
 
 	<Grid>
 		<DockPanel Background="#F7F9FC">
-			<Border DockPanel.Dock="Top"
-                    Background="White"
-                    Height="70"
-                    BoxShadow="0 2 10 0 #10000000">
+			<Border DockPanel.Dock="Top" Background="White" Height="70" BoxShadow="0 2 10 0 #10000000">
 				<Grid ColumnDefinitions="Auto, *, Auto" Margin="30,0">
-					<StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-						<Border Width="40"
-                                Height="40"
-                                Background="#5849E8"
-                                CornerRadius="10"
-                                Margin="0,0,10,0">
-							<PathIcon Data="{StaticResource home_regular}"
-                                      Foreground="White"
-                                      Width="20"
-                                      Height="20"/>
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<Border Width="40" Height="40" Background="#5849E8" CornerRadius="10" Margin="0,0,10,0">
+							<PathIcon Data="{StaticResource home_regular}" Foreground="White" Width="20" Height="20"/>
 						</Border>
-						<TextBlock Text="FoodHub"
-                                   FontSize="22"
-                                   FontWeight="ExtraBold"
-                                   Foreground="#1A1A1A"
-                                   VerticalAlignment="Center"/>
+						<TextBlock Text="FoodHub" FontSize="22" FontWeight="ExtraBold" Foreground="#1A1A1A" VerticalAlignment="Center"/>
 					</StackPanel>
 
-					<StackPanel Grid.Column="2"
-                                Orientation="Horizontal"
-                                Spacing="25"
-                                VerticalAlignment="Center">
-						<Button Content="Головна"
-                                Classes="navLink"
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToHomeCommand}"/>
-						<Button Content="Профіль"
-                                Classes="navLink"
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToProfileCommand}"/>
-						<Button Content="Замовлення"
-                                Classes="navLink"
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToOrdersCommand}"/>
-						<Button Background="#F1F5F9"
-                                Padding="12,8"
-                                CornerRadius="10"
-                                Cursor="Hand"
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToCartCommand}">
-							<TextBlock Text="Кошик"
-                                       Foreground="#1A1A1A"
-                                       VerticalAlignment="Center"/>
+					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="25" VerticalAlignment="Center">
+						<Button Content="Головна" Classes="navLink" Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToHomeCommand}"/>
+						<Button Content="Профіль" Classes="navLink" Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToProfileCommand}"/>
+						<Button Content="Замовлення" Classes="navLink" Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToOrdersCommand}"/>
+						<Button Background="#F1F5F9" Padding="12,8" CornerRadius="10" Cursor="Hand" Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateToCartCommand}">
+							<TextBlock Text="Кошик" Foreground="#1A1A1A" VerticalAlignment="Center"/>
 						</Button>
 					</StackPanel>
 				</Grid>
 			</Border>
 
-			<Grid ColumnDefinitions="300, *"
-                  Margin="40">
+			<Grid ColumnDefinitions="300, *" Margin="40">
 
-				<Border Grid.Column="0"
-                        Background="White"
-                        CornerRadius="20"
-                        Padding="15"
-                        VerticalAlignment="Top"
-                        BoxShadow="0 5 15 0 #08000000">
+				<Border Grid.Column="0" Background="White" CornerRadius="20" Padding="15" VerticalAlignment="Top" BoxShadow="0 5 15 0 #08000000">
 					<StackPanel Spacing="5">
 
-						<Button Classes="menuBtn active" Command="{Binding ShowProfileTabCommand}">
+						<Button Classes="menuBtn" Command="{Binding ShowProfileTabCommand}">
 							<StackPanel Orientation="Horizontal" Spacing="12">
 								<PathIcon Data="{StaticResource person_regular}" Width="18"/>
 								<TextBlock Text="Профіль" VerticalAlignment="Center"/>
 							</StackPanel>
 						</Button>
 
-						<Button Classes="menuBtn"
-                                Command="{Binding ShowApplicationTabCommand}"
-                                IsVisible="{Binding !User.IsOwner}">
+						<Button Classes="menuBtn" Command="{Binding ShowApplicationTabCommand}" IsVisible="{Binding !User.IsOwner}">
 							<StackPanel Orientation="Horizontal" Spacing="12">
 								<PathIcon Data="{StaticResource home_regular}" Width="18"/>
-								<TextBlock Text="Додати ресторан" VerticalAlignment="Center"/>
+								<TextBlock Text="Бажаю стати партнером" VerticalAlignment="Center"/>
 							</StackPanel>
 						</Button>
 
-						<Button Classes="menuBtn logout"
-                                Command="{Binding LogoutCommand}">
+						<Button Classes="menuBtn" Command="{Binding ShowAddRestaurantTabCommand}" IsVisible="{Binding User.IsOwner}">
+							<StackPanel Orientation="Horizontal" Spacing="12">
+								<PathIcon Data="{StaticResource building_regular}" Width="18"/>
+								<TextBlock Text="Мій ресторан" VerticalAlignment="Center"/>
+							</StackPanel>
+						</Button>
+
+						<Button Classes="menuBtn logout" Command="{Binding LogoutCommand}">
 							<StackPanel Orientation="Horizontal" Spacing="12">
 								<PathIcon Data="{StaticResource arrow_reply_regular}" Width="18" Foreground="#EF4444"/>
 								<TextBlock Text="Вийти з акаунту" Foreground="#EF4444" VerticalAlignment="Center"/>
@@ -93,16 +61,10 @@
 					</StackPanel>
 				</Border>
 
-				<Border Grid.Column="1"
-                        Margin="30,0,0,0"
-                        Background="White"
-                        CornerRadius="20"
-                        Padding="40"
-                        BoxShadow="0 5 15 0 #08000000">
-
+				<Border Grid.Column="1" Margin="30,0,0,0" Background="White" CornerRadius="20" Padding="40" BoxShadow="0 5 15 0 #08000000">
 					<Grid>
 
-						<StackPanel Spacing="35" IsVisible="{Binding !IsApplicationFormVisible}">
+						<StackPanel Spacing="35" IsVisible="{Binding IsProfileTabVisible}">
 							<Grid ColumnDefinitions="*, Auto">
 								<TextBlock Text="Профіль" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
 								<Button Grid.Column="1" Content="Редагувати" Classes="editBtn" Command="{Binding EditProfileCommand}"/>
@@ -136,28 +98,87 @@
 							</StackPanel>
 						</StackPanel>
 
-						<StackPanel Spacing="20" IsVisible="{Binding IsApplicationFormVisible}">
+						<StackPanel Spacing="20" IsVisible="{Binding IsApplicationTabVisible}">
 							<TextBlock Text="Стати партнером FoodHub" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
-							<TextBlock Text="Щоб отримати можливість керувати власним рестораном на платформі, будь ласка, заповніть заявку нижче. Наші менеджери розглянуть її найближчим часом."
+							<TextBlock Text="Щоб отримати можливість керувати власним рестораном на платформі, будь ласка, заповніть заявку нижче. Ми розглянимо її найближчим часом."
                                        Foreground="#64748B" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
-							<TextBlock Text="{Binding AppMessage}"
-                                       Foreground="{Binding AppMessageColor}"
-                                       IsVisible="{Binding AppMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                       FontWeight="SemiBold" TextWrapping="Wrap" FontSize="16"/>
+							<TextBlock Text="{Binding AppMessage}" Foreground="{Binding AppMessageColor}" IsVisible="{Binding AppMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="16"/>
 
 							<TextBox Text="{Binding AppFullName}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Ваше ПІБ (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
 							<TextBox Text="{Binding AppPhone}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Контактний телефон (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
 							<TextBox Text="{Binding AppEmail}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Електронна пошта (Обов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC"/>
 
-							<TextBox Text="{Binding AppDescription}"
-                                     Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1"
-                                     Watermark="Короткий опис закладу: назва, тип кухні (Необов'язково)"
-                                     CornerRadius="10" Padding="15" Background="#F8FAFC"
-                                     Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+							<TextBox Text="{Binding AppDescription}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Короткий опис закладу: назва, тип кухні (Необов'язково)" CornerRadius="10" Padding="15" Background="#F8FAFC" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
 
 							<Button Content="Відправити заявку" Classes="primaryBtn" Padding="25,15" Margin="0,15,0,0" Command="{Binding SubmitApplicationCommand}"/>
 						</StackPanel>
+
+						<ScrollViewer IsVisible="{Binding IsAddRestaurantTabVisible}">
+							<StackPanel Spacing="20">
+								<Grid ColumnDefinitions="*, Auto">
+									<TextBlock Text="Додати власний заклад" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
+									<Button Grid.Column="1" Content="Імпорт з JSON файлу" Classes="editBtn" Command="{Binding ImportJsonCommand}"/>
+								</Grid>
+
+								<TextBlock Text="{Binding RestMessage}" Foreground="{Binding RestMessageColor}" IsVisible="{Binding RestMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="16"/>
+
+								<TextBlock Text="Основна інформація" FontSize="18" FontWeight="Bold" Foreground="#5849E8"/>
+
+								<TextBox Text="{Binding RestName}" Watermark="Назва ресторану" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
+								<TextBox Text="{Binding RestAddress}" Watermark="Повна адреса (вулиця, номер будинку, місто)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
+
+								<Grid ColumnDefinitions="*, *">
+									<ComboBox Grid.Column="0" ItemsSource="{Binding RestaurantCategories}" SelectedItem="{Binding RestCategory}" PlaceholderText="Категорія закладу" Margin="0,0,10,0" HorizontalAlignment="Stretch" CornerRadius="10" Padding="15,12" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Foreground="#1E293B"/>
+
+									<TextBox Grid.Column="1" Text="{Binding RestDeliveryTime}" Margin="10,0,0,0" Watermark="Час доставки (напр. 30-40 min)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
+								</Grid>
+
+								<Grid ColumnDefinitions="*, Auto">
+									<TextBox Grid.Column="0" Text="{Binding RestImagePath}" Margin="0,0,10,0" IsReadOnly="True" Watermark="Картинка ресторану (Оберіть файл ->)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
+									<Button Grid.Column="1" Content="Обрати файл" Background="#5849E8" Foreground="White" CornerRadius="10" Padding="20,10" Command="{Binding UploadRestaurantImageCommand}"/>
+								</Grid>
+
+								<TextBox Text="{Binding RestDescription}" Watermark="Короткий опис ресторану" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Height="80" AcceptsReturn="True" TextWrapping="Wrap"/>
+
+								<Separator Background="#F1F5F9" Margin="0,10"/>
+
+								<Grid ColumnDefinitions="*, Auto">
+									<TextBlock Text="Меню закладу" FontSize="18" FontWeight="Bold" Foreground="#5849E8" VerticalAlignment="Center"/>
+									<Button Grid.Column="1" Content="＋ Додати страву" Background="#EEF2FF" Foreground="#5849E8" FontWeight="Bold" CornerRadius="8" Padding="15,8" Command="{Binding AddMenuFieldCommand}"/>
+								</Grid>
+
+								<ItemsControl ItemsSource="{Binding NewRestaurantMenu}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate>
+											<Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,0,15" Background="White">
+												<StackPanel Spacing="10">
+													<Button Content="✖ Видалити" Classes="dangerBtn" HorizontalAlignment="Right" Command="{Binding $parent[UserControl].((vm:ProfileViewModel)DataContext).RemoveMenuFieldCommand}" CommandParameter="{Binding}"/>
+
+													<Grid ColumnDefinitions="2*, 1*">
+														<TextBox Grid.Column="0" Text="{Binding Name}" Margin="0,0,10,0" Watermark="Назва страви" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10"/>
+
+														<NumericUpDown Grid.Column="1" Value="{Binding Price}" Minimum="0" Margin="10,0,0,0" Watermark="Ціна (грн)" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10" ShowButtonSpinner="False"/>
+													</Grid>
+
+													<Grid ColumnDefinitions="1*, 2*">
+														<TextBox Grid.Column="0" Text="{Binding Category}" Margin="0,0,10,0" Watermark="Категорія страви" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10"/>
+														<TextBox Grid.Column="1" Text="{Binding Description}" Margin="10,0,0,0" Watermark="Склад або опис страви" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10"/>
+													</Grid>
+
+													<Grid ColumnDefinitions="*, Auto">
+														<TextBox Grid.Column="0" Text="{Binding ImagePath}" Margin="0,0,10,0" IsReadOnly="True" Watermark="Картинка страви (Оберіть файл ->)" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10"/>
+														<Button Grid.Column="1" Content="Обрати" Classes="outlineBtn" CornerRadius="8" Padding="15,10" Command="{Binding $parent[UserControl].((vm:ProfileViewModel)DataContext).UploadMenuImageCommand}" CommandParameter="{Binding}"/>
+													</Grid>
+												</StackPanel>
+											</Border>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+
+								<Button Content="Зберегти новий заклад у БД" Classes="primaryBtn" Padding="25,15" Margin="0,10,0,0" Command="{Binding SaveRestaurantCommand}"/>
+							</StackPanel>
+						</ScrollViewer>
 
 					</Grid>
 				</Border>
@@ -168,18 +189,14 @@
 			<Border Background="White" CornerRadius="20" Width="350" Padding="24" VerticalAlignment="Center" HorizontalAlignment="Center" BoxShadow="0 10 30 0 #40000000">
 				<StackPanel Spacing="16">
 					<TextBlock Text="Редагувати профіль" FontSize="20" FontWeight="Bold" Foreground="#1E293B"/>
-
 					<TextBox Text="{Binding EditLogin}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Логін" CornerRadius="8" Padding="10"/>
-
 					<StackPanel Spacing="2">
 						<TextBox Text="{Binding EditPhone}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Номер телефону" CornerRadius="8" Padding="10"/>
 					</StackPanel>
-
 					<StackPanel Spacing="2">
 						<TextBox Text="{Binding EditPassword}" Foreground="#1E293B" BorderBrush="#E2E8F0" BorderThickness="1" Watermark="Новий пароль" PasswordChar="*" CornerRadius="8" Padding="10"/>
 						<TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="12" Margin="5,2,0,0" TextWrapping="Wrap"/>
 					</StackPanel>
-
 					<Grid ColumnDefinitions="*, *" Margin="0,10,0,0">
 						<Button Grid.Column="0" Content="Скасувати" Command="{Binding CancelEditCommand}" Background="Transparent" Foreground="#64748B" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand" Margin="0,0,5,0"/>
 						<Button Grid.Column="1" Content="Зберегти" Command="{Binding SaveProfileCommand}" Classes="primaryBtn" Cursor="Hand" Margin="5,0,0,0"/>
@@ -208,6 +225,7 @@
 			<Setter Property="Padding" Value="15,12"/>
 			<Setter Property="CornerRadius" Value="12"/>
 			<Setter Property="Foreground" Value="#64748B"/>
+			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
 		<Style Selector="Button.menuBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Background" Value="#F8FAFC"/>
@@ -240,6 +258,7 @@
 			<Setter Property="Padding" Value="25,12"/>
 			<Setter Property="CornerRadius" Value="12"/>
 			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
 		<Style Selector="Button.editBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Background" Value="#4F46E5"/>
@@ -253,6 +272,7 @@
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
 
 		<Style Selector="Button.primaryBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
@@ -272,6 +292,25 @@
 
 		<Style Selector="TextBox:focus">
 			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+		<Style Selector="Button.dangerBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#EF4444"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button.dangerBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#FEE2E2"/>
+			<Setter Property="Foreground" Value="#DC2626"/>
+		</Style>
+
+		<Style Selector="Button.outlineBtn">
+			<Setter Property="Background" Value="#F1F5F9"/>
+			<Setter Property="Foreground" Value="#5849E8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button.outlineBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#E2E8F0"/>
+			<Setter Property="Foreground" Value="#4F46E5"/>
 		</Style>
 	</UserControl.Styles>
 </UserControl>

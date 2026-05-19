@@ -139,7 +139,7 @@ namespace ClientAppe.Services
 
         public async Task<UserModel> GetProfileAsync()
         {
-            // повертаємоюзера
+            // повертаємо юзера
             await Task.Delay(100);
             return CurrentUser ?? new UserModel();
         }
@@ -150,7 +150,6 @@ namespace ClientAppe.Services
                 string json = JsonSerializer.Serialize(updatedUser);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Відправляємо PUT-запит на сервер
                 HttpResponseMessage response = await _httpClient.PutAsync("users/update", content);
 
                 if (response.IsSuccessStatusCode)
@@ -208,7 +207,6 @@ namespace ClientAppe.Services
 
             content.Add(streamContent, "file", Path.GetFileName(localFilePath));
 
-            // ТУТ ЗМІНА: Використовуємо існуючий клієнт. Він сам додасть "https://localhost:44333/api/"
             var response = await _httpClient.PostAsync("media/upload", content);
 
             if (response.IsSuccessStatusCode)
@@ -248,6 +246,22 @@ namespace ClientAppe.Services
                 return "None";
             }
             catch { return "None"; }
+        }
+        public async Task<bool> CreateRestaurantAsync(RestaurantModel restaurant)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(restaurant);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PostAsync("restaurants/add", content);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

@@ -62,7 +62,6 @@ namespace ClientAppe.ViewModels
 
                 if (IsRegisterMode)
                 {
-                    // РЕЄСТРАЦІЯ
 
                     // Перевірка на порожні поля
                     if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Username))
@@ -108,7 +107,6 @@ namespace ClientAppe.ViewModels
                 }
                 else
                 {
-                    // ВХІД
                     if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
                     {
                         ErrorMessage = "Введіть логін та пароль!";

@@ -1,8 +1,17 @@
-﻿using System.Windows.Input;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using ClientAppe.Models;
 using ClientAppe.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ClientAppe.ViewModels
 {
@@ -18,13 +27,27 @@ namespace ClientAppe.ViewModels
             set { _user = value; OnPropertyChanged(); OnPropertyChanged(nameof(UserInitial)); }
         }
 
+        private string _activeTab = "Profile";
+        public string ActiveTab
+        {
+            get => _activeTab;
+            set {
+                _activeTab = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(IsProfileTabVisible));
+                OnPropertyChanged(nameof(IsApplicationTabVisible));
+                OnPropertyChanged(nameof(IsAddRestaurantTabVisible));
+            }
+        }
+        public bool IsProfileTabVisible => ActiveTab == "Profile";
+        public bool IsApplicationTabVisible => ActiveTab == "Application";
+        public bool IsAddRestaurantTabVisible => ActiveTab == "AddRestaurant";
+
         private bool _isEditing;
         public bool IsEditing
         {
             get => _isEditing;
             set { _isEditing = value; OnPropertyChanged(); }
         }
-
         private string _editLogin;
         public string EditLogin
         {
@@ -54,13 +77,6 @@ namespace ClientAppe.ViewModels
         }
         public string UserInitial => !string.IsNullOrEmpty(User?.Login) ? User.Login[0].ToString().ToUpper() : "?";
 
-        private bool _isApplicationFormVisible;
-        public bool IsApplicationFormVisible
-        {
-            get => _isApplicationFormVisible;
-            set { _isApplicationFormVisible = value; OnPropertyChanged(); }
-        }
-
         private string _appFullName;
         public string AppFullName { get => _appFullName; set { _appFullName = value; OnPropertyChanged(); } }
 
@@ -79,136 +95,251 @@ namespace ClientAppe.ViewModels
         private string _appMessageColor = "#EF4444";
         public string AppMessageColor { get => _appMessageColor; set { _appMessageColor = value; OnPropertyChanged(); } }
 
+        public string RestName { get; set; }
+        public List<string> RestaurantCategories { get; } = new List<string> { "Ресторан", "Фаст-фуд", "Інше" };
+        public string RestCategory { get; set; }
+        public string RestDeliveryTime { get; set; }
+        public string RestDescription { get; set; }
+        public string RestImagePath { get; set; }
+        public string RestAddress { get; set; }
+
+        private string _restMessage;
+        public string RestMessage { get => _restMessage; set { _restMessage = value; OnPropertyChanged(); } }
+        public string RestMessageColor { get; set; } = "#EF4444";
+
+        // Динамічний список страв для меню ресторану
+        public ObservableCollection<FoodModel> NewRestaurantMenu { get; set; } = new ObservableCollection<FoodModel>();
+      
         public ICommand EditProfileCommand { get; }
         public ICommand CancelEditCommand { get; }
         public ICommand SaveProfileCommand { get; }
+        public ICommand ShowAddRestaurantTabCommand { get; }
+
         public ICommand LogoutCommand { get; }
         public ICommand ShowProfileTabCommand { get; }
         public ICommand ShowApplicationTabCommand { get; }
         public ICommand SubmitApplicationCommand { get; }
+
+        public ICommand AddMenuFieldCommand { get; }
+        public ICommand ImportJsonCommand { get; }
+        public ICommand SaveRestaurantCommand { get; }
+        public ICommand RemoveMenuFieldCommand { get; }
+        public ICommand UploadRestaurantImageCommand { get; }
+        public ICommand UploadMenuImageCommand { get; }
 
         public ProfileViewModel(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
             LoadProfile();
 
-            // Відкриваємо вікно редагування
-            EditProfileCommand = new RelayCommand(o => {
-                EditLogin = User.Login;
-                EditPhone = User.Phone;
-                EditPassword = "";
-                IsEditing = true;
-            });
-
+            EditProfileCommand = new RelayCommand(o => { EditLogin = User.Login; EditPhone = User.Phone; EditPassword = ""; IsEditing = true; });
             CancelEditCommand = new RelayCommand(o => { IsEditing = false; });
-
             SaveProfileCommand = new RelayCommand(async o => {
                 ErrorMessage = "";
-
                 string phonePattern = @"^\+?[0-9]{10,12}$";
-                if (!Regex.IsMatch(EditPhone, phonePattern))
-                {
-                    ErrorMessage = "Некоректний номер (напр. +380954123456)";
-                    return;
-                }
+                if (!Regex.IsMatch(EditPhone, phonePattern)) { ErrorMessage = "Некоректний номер"; return; }
+                if (!string.IsNullOrWhiteSpace(EditPassword) && !Regex.IsMatch(EditPassword, @"^[a-zA-Z0-9]{8,16}$")) { ErrorMessage = "Пароль: 8-16 символів"; return; }
 
-                if (!string.IsNullOrWhiteSpace(EditPassword))
+                var updatedUser = new UserModel { Id = User.Id, Login = EditLogin, Phone = EditPhone, Password = EditPassword, Token = ApiService.CurrentUser.Token };
+                if (await _apiService.UpdateProfileAsync(updatedUser))
                 {
-                    string passPattern = @"^[a-zA-Z0-9]{8,16}$";
-                    if (!Regex.IsMatch(EditPassword, passPattern))
-                    {
-                        ErrorMessage = "Пароль: 8-16 символів (A-Z, 0-9)";
-                        return;
-                    }
-                }
-
-                var updatedUser = new UserModel
-                {
-                    Id = User.Id,
-                    Login = EditLogin,
-                    Phone = EditPhone,
-                    Password = EditPassword,
-                    Token = ApiService.CurrentUser.Token
-                };
-
-                bool success = await _apiService.UpdateProfileAsync(updatedUser);
-                if (success)
-                {
-                    User.Login = EditLogin;
-                    User.Phone = EditPhone;
-                    OnPropertyChanged(nameof(User));
-                    OnPropertyChanged(nameof(UserInitial));
+                    User.Login = EditLogin; User.Phone = EditPhone;
+                    OnPropertyChanged(nameof(User)); OnPropertyChanged(nameof(UserInitial));
                     IsEditing = false;
                 }
             });
+            LogoutCommand = new RelayCommand(o => { ApiService.CurrentUser = null; _mainViewModel.NavigateTo(new AuthViewModel(_mainViewModel), false); });
 
-            LogoutCommand = new RelayCommand(o =>
-            {
-                ApiService.CurrentUser = null;
-                _mainViewModel.NavigateTo(new AuthViewModel(_mainViewModel), false);
+            ShowProfileTabCommand = new RelayCommand(o => { ActiveTab = "Profile"; AppMessage = ""; RestMessage = ""; });
+            ShowApplicationTabCommand = new RelayCommand(o => { ActiveTab = "Application"; AppFullName = ""; AppPhone = User?.Phone; AppEmail = User?.Email; });
+            ShowAddRestaurantTabCommand = new RelayCommand(o => {
+                ActiveTab = "AddRestaurant";
+                RestMessage = "";
             });
 
-            ShowProfileTabCommand = new RelayCommand(o =>
-            {
-                IsApplicationFormVisible = false;
-                AppMessage = "";
-            });
-
-            ShowApplicationTabCommand = new RelayCommand(o =>
-            {
-                IsApplicationFormVisible = true;
-                AppFullName = "";
-                AppPhone = User?.Phone;
-                AppEmail = User?.Email;
-            });
-
-            SubmitApplicationCommand = new RelayCommand(async o =>
-            {
-                // 1. Перевірка на порожні поля
+            SubmitApplicationCommand = new RelayCommand(async o => {
                 if (string.IsNullOrWhiteSpace(AppFullName) || string.IsNullOrWhiteSpace(AppPhone) || string.IsNullOrWhiteSpace(AppEmail))
+                { AppMessageColor = "#EF4444"; AppMessage = "Будь ласка, заповніть усі обов'язкові поля!"; return; }
+
+                AppMessageColor = "#10B981"; AppMessage = "Відправка...";
+                if (await _apiService.SubmitPartnerApplicationAsync(AppFullName, AppPhone, AppEmail, AppDescription))
                 {
-                    AppMessageColor = "#EF4444";
-                    AppMessage = "Будь ласка, заповніть усі обов'язкові поля!";
+                    AppMessage = "Заявку успішно відправлено! Очікуйте на рішення.";
+                    await Task.Delay(1500); ActiveTab = "Profile"; AppMessage = "";
+                }
+                else { AppMessageColor = "#EF4444"; AppMessage = "Помилка відправки."; }
+            });
+
+            AddMenuFieldCommand = new RelayCommand(o => {
+                NewRestaurantMenu.Add(new FoodModel { Quantity = 1 });
+            });
+
+            // Картинка закладу
+            UploadRestaurantImageCommand = new RelayCommand(async o => {
+                string filePath = await PickImageFileAsync();
+                if (filePath != null)
+                {
+                    RestMessageColor = "#10B981"; RestMessage = "Завантаження картинки...";
+                    string uploadedFileName = await _apiService.UploadImageAsync(filePath);
+                    if (uploadedFileName != null) { RestImagePath = uploadedFileName; OnPropertyChanged(nameof(RestImagePath)); RestMessage = "Картинку закладу успішно завантажено!"; }
+                    else { RestMessageColor = "#EF4444"; RestMessage = "Помилка завантаження картинки на сервер."; }
+                }
+            });
+
+            // Картинка страви
+            UploadMenuImageCommand = new RelayCommand(async foodItem => {
+                if (foodItem is FoodModel food)
+                {
+                    string filePath = await PickImageFileAsync();
+                    if (filePath != null)
+                    {
+                        RestMessageColor = "#10B981"; RestMessage = "Завантаження картинки страви...";
+                        string uploadedFileName = await _apiService.UploadImageAsync(filePath);
+                        if (uploadedFileName != null)
+                        {
+                            food.ImagePath = uploadedFileName;
+                            // Щоб Avalonia побачила зміни в об'єкті, ми "пересмикуємо" колекцію
+                            var index = NewRestaurantMenu.IndexOf(food);
+                            NewRestaurantMenu[index] = new FoodModel { Name = food.Name, Price = food.Price, Category = food.Category, Description = food.Description, ImagePath = uploadedFileName, Quantity = 1 };
+                            RestMessage = "Картинку страви успішно завантажено!";
+                        }
+                        else { RestMessageColor = "#EF4444"; RestMessage = "Помилка завантаження картинки."; }
+                    }
+                }
+            });
+
+            // імпорт
+            ImportJsonCommand = new RelayCommand(async o =>
+            {
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var files = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                    {
+                        Title = "Оберіть файл ресторану (.json)",
+                        AllowMultiple = false,
+                        FileTypeFilter = new[] { new FilePickerFileType("JSON файли") { Patterns = new[] { "*.json" } } }
+                    });
+
+                    if (files.Count > 0)
+                    {
+                        try
+                        {
+                            // Читаємо обраний файл
+                            await using var stream = await files[0].OpenReadAsync();
+                            using var reader = new StreamReader(stream);
+                            string jsonContent = await reader.ReadToEndAsync();
+
+                            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                            var imported = JsonSerializer.Deserialize<RestaurantModel>(jsonContent, options);
+
+                            if (imported != null)
+                            {
+                                // Заповнюємо форму даними з файлу
+                                RestName = imported.Name;
+                                RestCategory = imported.Category;
+                                RestDeliveryTime = imported.DeliveryTime;
+                                RestDescription = imported.Description;
+                                RestImagePath = imported.ImagePath;
+                                RestAddress = imported.Address;
+
+                                OnPropertyChanged(nameof(RestName));
+                                OnPropertyChanged(nameof(RestCategory));
+                                OnPropertyChanged(nameof(RestDeliveryTime));
+                                OnPropertyChanged(nameof(RestAddress));
+
+                                // Заповнюємо меню
+                                NewRestaurantMenu.Clear();
+                                if (imported.Menu != null)
+                                {
+                                    foreach (var item in imported.Menu)
+                                    {
+                                        NewRestaurantMenu.Add(item);
+                                    }
+                                }
+
+                                RestMessageColor = "#10B981";
+                                RestMessage = "Файл успішно завантажено! Перевірте дані нижче.";
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            RestMessageColor = "#EF4444";
+                            RestMessage = "Помилка: Невірний формат JSON файлу.";
+                        }
+                    }
+                }
+            });
+            SaveRestaurantCommand = new RelayCommand(async o =>
+            {
+                // Валідація ресторану
+                if (string.IsNullOrWhiteSpace(RestName) || string.IsNullOrWhiteSpace(RestAddress) ||
+                    string.IsNullOrWhiteSpace(RestCategory) || string.IsNullOrWhiteSpace(RestDeliveryTime) ||
+                    string.IsNullOrWhiteSpace(RestDescription) || string.IsNullOrWhiteSpace(RestImagePath))
+                {
+                    RestMessageColor = "#EF4444";
+                    RestMessage = "Помилка: Усі поля закладу повинні бути заповнені!";
                     return;
                 }
 
-                string phonePattern = @"^\+?[0-9]{10,12}$";
-                if (!Regex.IsMatch(AppPhone, phonePattern))
+                // Валідація меню
+                if (NewRestaurantMenu.Count == 0)
                 {
-                    AppMessageColor = "#EF4444";
-                    AppMessage = "Некоректний номер телефону (напр. +380954123456)";
-                    return;
+                    RestMessageColor = "#EF4444"; RestMessage = "Помилка: Додайте хоча б одну страву в меню!"; return;
                 }
 
-                string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-                if (!Regex.IsMatch(AppEmail, emailPattern))
+                foreach (var food in NewRestaurantMenu)
                 {
-                    AppMessageColor = "#EF4444";
-                    AppMessage = "Некоректний формат електронної пошти (напр. example@gmail.com)";
-                    return;
+                    if (string.IsNullOrWhiteSpace(food.Name) || string.IsNullOrWhiteSpace(food.Category) ||
+                        string.IsNullOrWhiteSpace(food.Description) || string.IsNullOrWhiteSpace(food.ImagePath))
+                    {
+                        RestMessageColor = "#EF4444"; RestMessage = "Помилка: Заповніть усі поля для кожної страви!"; return;
+                    }
+                    if (food.Price <= 0)
+                    {
+                        RestMessageColor = "#EF4444"; RestMessage = $"Помилка: Ціна для '{food.Name}' повинна бути більше 0!"; return;
+                    }
                 }
 
-                AppMessageColor = "#10B981";
-                AppMessage = "Відправка...";
+                var newRest = new RestaurantModel
+                {
+                    Name = RestName,
+                    Category = RestCategory,
+                    DeliveryTime = RestDeliveryTime,
+                    Description = RestDescription,
+                    ImagePath = RestImagePath,
+                    Address = RestAddress,
+                    Distance = "Очікує GPS",
+                    Rating = 0.0,
+                    Menu = NewRestaurantMenu.ToList()
+                };
 
-                bool success = await _apiService.SubmitPartnerApplicationAsync(AppFullName, AppPhone, AppEmail, AppDescription);
+                RestMessageColor = "#10B981"; RestMessage = "Збереження закладу на сервер...";
+
+                bool success = await _apiService.CreateRestaurantAsync(newRest);
 
                 if (success)
                 {
-                    AppMessage = "Заявку успішно відправлено! Очікуйте на рішення.";
-
-                    await Task.Delay(1500);
-                    IsApplicationFormVisible = false;
-                    AppMessage = "";
+                    RestMessage = "Заклад успішно додано до системи!";
+                    await Task.Delay(1500); ActiveTab = "Profile";
                 }
-                else
-                {
-                    AppMessageColor = "#EF4444";
-                    AppMessage = "Помилка відправки. Можливо, ваша заявка вже знаходиться на розгляді.";
-                }
+                else { RestMessageColor = "#EF4444"; RestMessage = "Помилка збереження! Перевірте сервер."; }
             });
         }
 
+        private async Task<string> PickImageFileAsync()
+        {
+            if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var files = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = "Оберіть зображення",
+                    AllowMultiple = false,
+                    FileTypeFilter = new[] { new FilePickerFileType("Зображення") { Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.webp" } } }
+                });
+                if (files.Count > 0) return files[0].Path.LocalPath;
+            }
+            return null;
+        }
         private async void LoadProfile()
         {
             User = await _apiService.GetProfileAsync() ?? new UserModel { Login = "Гість" };
