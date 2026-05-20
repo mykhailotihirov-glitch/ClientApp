@@ -5,6 +5,8 @@ namespace ClientAppe.Models
     public class RestaurantModel
     {
         public int Id { get; set; }
+        public int OwnerId { get; set; }
+        public string OwnerLogin { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public double Rating { get; set; }

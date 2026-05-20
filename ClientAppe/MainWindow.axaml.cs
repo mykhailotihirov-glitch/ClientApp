@@ -1,5 +1,6 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using ClientAppe.ViewModels;
+using System;
 
 namespace ClientAppe.Views
 {
@@ -9,6 +10,12 @@ namespace ClientAppe.Views
         {
             InitializeComponent();
             DataContext = new MainViewModel();
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            Environment.Exit(0);
         }
     }
 }

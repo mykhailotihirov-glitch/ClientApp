@@ -96,6 +96,9 @@ namespace ClientAppe.ViewModels
         public string AppMessageColor { get => _appMessageColor; set { _appMessageColor = value; OnPropertyChanged(); } }
 
         public string RestName { get; set; }
+        private int _currentRestaurantId = 0;
+        public string RestaurantFormTitle => _currentRestaurantId > 0 ? "Редагування закладу" : "Додати власний заклад";
+        public string RestaurantSubmitButtonText => _currentRestaurantId > 0 ? "Зберегти зміни" : "Зберегти новий заклад у БД";
         public List<string> RestaurantCategories { get; } = new List<string> { "Ресторан", "Фаст-фуд", "Інше" };
         public string RestCategory { get; set; }
         public string RestDeliveryTime { get; set; }
@@ -152,9 +155,40 @@ namespace ClientAppe.ViewModels
 
             ShowProfileTabCommand = new RelayCommand(o => { ActiveTab = "Profile"; AppMessage = ""; RestMessage = ""; });
             ShowApplicationTabCommand = new RelayCommand(o => { ActiveTab = "Application"; AppFullName = ""; AppPhone = User?.Phone; AppEmail = User?.Email; });
-            ShowAddRestaurantTabCommand = new RelayCommand(o => {
+            ShowAddRestaurantTabCommand = new RelayCommand(async o => {
                 ActiveTab = "AddRestaurant";
                 RestMessage = "";
+
+                // Завантажуємо всі ресторани і шукаємо свій
+                var allRestaurants = await _apiService.GetRestaurantsAsync();
+                var myRest = allRestaurants.FirstOrDefault(r => r.OwnerId == User.Id);
+
+                if (myRest != null)
+                {
+                    _currentRestaurantId = myRest.Id;
+                    RestName = myRest.Name;
+                    RestCategory = myRest.Category;
+                    RestAddress = myRest.Address;
+                    RestDeliveryTime = myRest.DeliveryTime;
+                    RestDescription = myRest.Description;
+                    RestImagePath = myRest.ImagePath;
+
+                    NewRestaurantMenu.Clear();
+                    if (myRest.Menu != null)
+                    {
+                        foreach (var item in myRest.Menu) NewRestaurantMenu.Add(item);
+                    }
+                }
+                else
+                {
+                    _currentRestaurantId = 0;
+                    if (NewRestaurantMenu.Count == 0) NewRestaurantMenu.Add(new FoodModel { Quantity = 1 });
+                }
+
+                OnPropertyChanged(nameof(RestName)); OnPropertyChanged(nameof(RestCategory));
+                OnPropertyChanged(nameof(RestAddress)); OnPropertyChanged(nameof(RestDeliveryTime));
+                OnPropertyChanged(nameof(RestDescription)); OnPropertyChanged(nameof(RestImagePath));
+                OnPropertyChanged(nameof(RestaurantFormTitle)); OnPropertyChanged(nameof(RestaurantSubmitButtonText));
             });
 
             SubmitApplicationCommand = new RelayCommand(async o => {
@@ -302,24 +336,36 @@ namespace ClientAppe.ViewModels
 
                 var newRest = new RestaurantModel
                 {
+                    Id = _currentRestaurantId,
+                    OwnerId = User.Id,
+                    OwnerLogin = User.Login,
                     Name = RestName,
                     Category = RestCategory,
                     DeliveryTime = RestDeliveryTime,
                     Description = RestDescription,
                     ImagePath = RestImagePath,
                     Address = RestAddress,
-                    Distance = "Очікує GPS",
                     Rating = 0.0,
                     Menu = NewRestaurantMenu.ToList()
                 };
 
-                RestMessageColor = "#10B981"; RestMessage = "Збереження закладу на сервер...";
+                RestMessageColor = "#10B981"; RestMessage = "Збереження даних на сервер...";
 
-                bool success = await _apiService.CreateRestaurantAsync(newRest);
+                bool success;
+                if (_currentRestaurantId > 0)
+                {
+                    // Якщо ресторан вже є - оновлюємо
+                    success = await _apiService.UpdateRestaurantAsync(newRest);
+                }
+                else
+                {
+                    // Якщо ресторана немає - створюємо
+                    success = await _apiService.CreateRestaurantAsync(newRest);
+                }
 
                 if (success)
                 {
-                    RestMessage = "Заклад успішно додано до системи!";
+                    RestMessage = _currentRestaurantId > 0 ? "Дані закладу успішно оновлено!" : "Заклад успішно створено!";
                     await Task.Delay(1500); ActiveTab = "Profile";
                 }
                 else { RestMessageColor = "#EF4444"; RestMessage = "Помилка збереження! Перевірте сервер."; }

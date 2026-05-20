@@ -98,12 +98,21 @@ namespace ClientAppe.ViewModels
 
         async void LoadData()
         {
-            // Категорії меню
-            Categories = new ObservableCollection<string> { "Всі", "Перші страви", "Основні страви", "Напої" };
-
             if (Restaurant != null && Restaurant.Menu != null)
             {
                 _allMenuItems = Restaurant.Menu.ToList();
+
+                var dynamicCategories = new List<string> { "Всі" };
+
+                var uniqueCategories = _allMenuItems
+                    .Where(f => !string.IsNullOrWhiteSpace(f.Category))
+                    .Select(f => f.Category.Trim())
+                    .Distinct()
+                    .ToList();
+
+                dynamicCategories.AddRange(uniqueCategories);
+
+                Categories = new ObservableCollection<string>(dynamicCategories);
 
                 foreach (var food in _allMenuItems)
                 {
@@ -116,6 +125,7 @@ namespace ClientAppe.ViewModels
             }
             else
             {
+                Categories = new ObservableCollection<string> { "Всі" };
                 _allMenuItems = new List<FoodModel>();
                 MenuItems = new ObservableCollection<FoodModel>();
             }

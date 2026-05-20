@@ -9,12 +9,10 @@ namespace ClientAppe.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        // СЕРВІСИ ТА СТЕК НАВІГАЦІЇ
         private readonly CartService _cartService = new CartService();
         private readonly Stack<ViewModelBase> _history = new Stack<ViewModelBase>();
         private CartWindow _openedCartWindow;
 
-        // ВЛАСТИВОСТІ СТАНУ
         private ViewModelBase _currentViewModel;
         public ViewModelBase CurrentViewModel
         {
@@ -29,7 +27,6 @@ namespace ClientAppe.ViewModels
             set { _isSuccessMessageVisible = value; OnPropertyChanged(); }
         }
 
-        // КОМАНДИ
         public ICommand NavigateToHomeCommand { get; }
         public ICommand NavigateToAuthCommand { get; }
         public ICommand NavigateToRestaurantsCommand { get; }
@@ -44,10 +41,8 @@ namespace ClientAppe.ViewModels
             NavigateToHomeCommand = new RelayCommand(o => NavigateTo(new HomeViewModel(this)));
             NavigateToAuthCommand = new RelayCommand(o => NavigateTo(new AuthViewModel(this)));
 
-            // Для ресторанів передаємо посилання на MainViewModel, щоб працював перехід в деталі
             NavigateToRestaurantsCommand = new RelayCommand(o => NavigateTo(new RestaurantsViewModel(this)));
 
-            // Кошик відкривається в окремому вікні
             NavigateToCartCommand = new RelayCommand(o => OpenCartWindow());
 
             NavigateToProfileCommand = new RelayCommand(o => NavigateTo(new ProfileViewModel(this)));
@@ -120,7 +115,6 @@ namespace ClientAppe.ViewModels
             _openedCartWindow.Show();
         }
 
-        // Метод, який викликається при успішному замовленні у вікні кошика
         private void OnOrderSuccess()
         {
             IsSuccessMessageVisible = true;
@@ -128,8 +122,8 @@ namespace ClientAppe.ViewModels
             // Повертаємо головне вікно на головну сторінку
             NavigateTo(new HomeViewModel(this), false);
 
-            // Очищуємо історію навігації головного вікна, щоб "Назад" не вела до оформлення
             _history.Clear();
         }
+
     }
 }

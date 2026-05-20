@@ -263,5 +263,21 @@ namespace ClientAppe.Services
                 return false;
             }
         }
+        public async Task<bool> UpdateRestaurantAsync(RestaurantModel restaurant)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(restaurant);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PutAsync("restaurants/update", content);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

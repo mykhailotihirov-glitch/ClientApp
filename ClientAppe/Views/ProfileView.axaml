@@ -117,8 +117,15 @@
 						<ScrollViewer IsVisible="{Binding IsAddRestaurantTabVisible}">
 							<StackPanel Spacing="20">
 								<Grid ColumnDefinitions="*, Auto">
-									<TextBlock Text="Додати власний заклад" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
-									<Button Grid.Column="1" Content="Імпорт з JSON файлу" Classes="editBtn" Command="{Binding ImportJsonCommand}"/>
+									<TextBlock Text="{Binding RestaurantFormTitle}" FontSize="28" FontWeight="Bold" Foreground="#1E293B"/>
+									<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+										<Border Background="#F1F5F9" Width="26" Height="26" CornerRadius="13"
+													ToolTip.Tip="Структура JSON файлу:&#x0a;{&#x0a;  &quot;Name&quot;: &quot;Назва&quot;,&#x0a;  &quot;Address&quot;: &quot;Адреса&quot;,&#x0a;  &quot;Category&quot;: &quot;Фаст-фуд&quot;,&#x0a;  &quot;DeliveryTime&quot;: &quot;30-40 хв&quot;,&#x0a;  &quot;Description&quot;: &quot;Опис&quot;,&#x0a;  &quot;ImagePath&quot;: &quot;rest.jpg&quot;,&#x0a;  &quot;Menu&quot;: [&#x0a;    {&#x0a;      &quot;Name&quot;: &quot;Бургер&quot;,&#x0a;      &quot;Price&quot;: 150,&#x0a;      &quot;Category&quot;: &quot;Основні страви&quot;,&#x0a;      &quot;Description&quot;: &quot;Склад страви&quot;,&#x0a;      &quot;ImagePath&quot;: &quot;food.jpg&quot;&#x0a;    }&#x0a;  ]&#x0a;}">
+											<TextBlock Text="?" Foreground="#64748B" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+										</Border>
+
+										<Button Content="Імпорт з JSON" Classes="editBtn" Command="{Binding ImportJsonCommand}"/>
+									</StackPanel>
 								</Grid>
 
 								<TextBlock Text="{Binding RestMessage}" Foreground="{Binding RestMessageColor}" IsVisible="{Binding RestMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="16"/>
@@ -131,12 +138,12 @@
 								<Grid ColumnDefinitions="*, *">
 									<ComboBox Grid.Column="0" ItemsSource="{Binding RestaurantCategories}" SelectedItem="{Binding RestCategory}" PlaceholderText="Категорія закладу" Margin="0,0,10,0" HorizontalAlignment="Stretch" CornerRadius="10" Padding="15,12" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Foreground="#1E293B"/>
 
-									<TextBox Grid.Column="1" Text="{Binding RestDeliveryTime}" Margin="10,0,0,0" Watermark="Час доставки (напр. 30-40 min)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
+									<TextBox Grid.Column="1" Text="{Binding RestDeliveryTime}" Margin="10,0,0,0" Watermark="Час доставки (напр. 30-40 хв)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
 								</Grid>
 
 								<Grid ColumnDefinitions="*, Auto">
 									<TextBox Grid.Column="0" Text="{Binding RestImagePath}" Margin="0,0,10,0" IsReadOnly="True" Watermark="Картинка ресторану (Оберіть файл ->)" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"/>
-									<Button Grid.Column="1" Content="Обрати файл" Background="#5849E8" Foreground="White" CornerRadius="10" Padding="20,10" Command="{Binding UploadRestaurantImageCommand}"/>
+									<Button Grid.Column="1" Content="Обрати файл" Classes="primaryBtn" Padding="20,10" Command="{Binding UploadRestaurantImageCommand}"/>
 								</Grid>
 
 								<TextBox Text="{Binding RestDescription}" Watermark="Короткий опис ресторану" CornerRadius="10" Padding="15" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Height="80" AcceptsReturn="True" TextWrapping="Wrap"/>
@@ -145,7 +152,7 @@
 
 								<Grid ColumnDefinitions="*, Auto">
 									<TextBlock Text="Меню закладу" FontSize="18" FontWeight="Bold" Foreground="#5849E8" VerticalAlignment="Center"/>
-									<Button Grid.Column="1" Content="＋ Додати страву" Background="#EEF2FF" Foreground="#5849E8" FontWeight="Bold" CornerRadius="8" Padding="15,8" Command="{Binding AddMenuFieldCommand}"/>
+									<Button Grid.Column="1" Content="＋ Додати страву" Classes="secondaryBtn" FontWeight="Bold" CornerRadius="8" Padding="15,8" Command="{Binding AddMenuFieldCommand}"/>
 								</Grid>
 
 								<ItemsControl ItemsSource="{Binding NewRestaurantMenu}">
@@ -176,7 +183,7 @@
 									</ItemsControl.ItemTemplate>
 								</ItemsControl>
 
-								<Button Content="Зберегти новий заклад у БД" Classes="primaryBtn" Padding="25,15" Margin="0,10,0,0" Command="{Binding SaveRestaurantCommand}"/>
+								<Button Content="{Binding RestaurantSubmitButtonText}" Classes="primaryBtn" Padding="25,15" Margin="0,10,0,0" Command="{Binding SaveRestaurantCommand}"/>
 							</StackPanel>
 						</ScrollViewer>
 
@@ -310,6 +317,15 @@
 		</Style>
 		<Style Selector="Button.outlineBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Background" Value="#E2E8F0"/>
+			<Setter Property="Foreground" Value="#4F46E5"/>
+		</Style>
+		<Style Selector="Button.secondaryBtn">
+			<Setter Property="Background" Value="#EEF2FF"/>
+			<Setter Property="Foreground" Value="#5849E8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button.secondaryBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#E0E7FF"/>
 			<Setter Property="Foreground" Value="#4F46E5"/>
 		</Style>
 	</UserControl.Styles>
