@@ -53,7 +53,7 @@ namespace ClientAppe.Services
             CartUpdated?.Invoke();
         }
 
-        public decimal GetTotal()
+        public decimal? GetTotal()
         {
             return Items.Sum(x => x.Price * (decimal)x.Quantity);
         }
