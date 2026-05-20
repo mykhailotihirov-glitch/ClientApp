@@ -53,7 +53,7 @@ namespace ClientAppe.ViewModels
         {
             get
             {
-                decimal subtotal = _cartService.GetTotal();
+                decimal? subtotal = _cartService.GetTotal();
                 decimal tipPercent = 0;
 
                 if (decimal.TryParse(SelectedTip.Replace("%", ""), out decimal val))
@@ -61,7 +61,7 @@ namespace ClientAppe.ViewModels
                     tipPercent = val / 100;
                 }
 
-                decimal total = subtotal + (subtotal * tipPercent);
+                decimal? total = subtotal + (subtotal * tipPercent);
                 return $"{total:N2} грн";
             }
         }

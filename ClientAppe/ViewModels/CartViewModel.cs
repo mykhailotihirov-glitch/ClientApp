@@ -13,9 +13,9 @@ namespace ClientAppe.ViewModels
 
         public ObservableCollection<FoodModel> CartItems => _cartService.Items;
 
-        public decimal ItemsCost => _cartService.GetTotal();
+        public decimal? ItemsCost => _cartService.GetTotal();
         public string DeliveryCost => "0";
-        public decimal TotalCost => ItemsCost;
+        public decimal? TotalCost => ItemsCost;
         public string ItemsCountText => $"Кошик ({CartItems.Count})";
 
         public bool IsCartEmpty => CartItems.Count == 0;
