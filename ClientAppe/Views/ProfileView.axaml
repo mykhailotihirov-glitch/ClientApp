@@ -328,5 +328,27 @@
 			<Setter Property="Background" Value="#E0E7FF"/>
 			<Setter Property="Foreground" Value="#4F46E5"/>
 		</Style>
+
+		<Style Selector="NumericUpDown">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+		<Style Selector="NumericUpDown:pointerover /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="#F8FAFC"/>
+			<Setter Property="BorderBrush" Value="#E2E8F0"/>
+		</Style>
+		<Style Selector="NumericUpDown:focus /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="BorderBrush" Value="#5849E8"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+		<Style Selector="NumericUpDown /template/ TextBox#PART_TextBox">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+		<Style Selector="NumericUpDown:pointerover /template/ TextBox#PART_TextBox">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
+		<Style Selector="NumericUpDown:focus /template/ TextBox#PART_TextBox">
+			<Setter Property="Foreground" Value="#1E293B"/>
+		</Style>
 	</UserControl.Styles>
 </UserControl>

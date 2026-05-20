@@ -314,7 +314,14 @@ namespace ClientAppe.ViewModels
                     RestMessage = "Помилка: Усі поля закладу повинні бути заповнені!";
                     return;
                 }
-
+                // Валідація часу доставки
+                string deliveryPattern = @"^\d+(-\d+)?\s*(хв|хв\.|год|год\.)$";
+                if (!Regex.IsMatch(RestDeliveryTime ?? "", deliveryPattern, RegexOptions.IgnoreCase))
+                {
+                    RestMessageColor = "#EF4444";
+                    RestMessage = "Некоректний формат часу доставки! Використовуйте наприклад: '30-40 хв', '15 хв' або '1 год'.";
+                    return;
+                }
                 // Валідація меню
                 if (NewRestaurantMenu.Count == 0)
                 {
