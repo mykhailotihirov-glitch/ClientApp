@@ -38,6 +38,8 @@ namespace ClientAppe.ViewModels
                 OnPropertyChanged(nameof(IsAddRestaurantTabVisible));
             }
         }
+        private readonly string _phoneRegex = @"^\+?[0-9]{10,13}$";
+        private readonly string _emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
         public bool IsProfileTabVisible => ActiveTab == "Profile";
         public bool IsApplicationTabVisible => ActiveTab == "Application";
         public bool IsAddRestaurantTabVisible => ActiveTab == "AddRestaurant";
@@ -139,6 +141,7 @@ namespace ClientAppe.ViewModels
             CancelEditCommand = new RelayCommand(o => { IsEditing = false; });
             SaveProfileCommand = new RelayCommand(async o => {
                 ErrorMessage = "";
+                if (string.IsNullOrWhiteSpace(EditPhone)) {ErrorMessage = "Поле телефону не може бути пустим!"; return;}
                 string phonePattern = @"^\+?[0-9]{10,12}$";
                 if (!Regex.IsMatch(EditPhone, phonePattern)) { ErrorMessage = "Некоректний номер"; return; }
                 if (!string.IsNullOrWhiteSpace(EditPassword) && !Regex.IsMatch(EditPassword, @"^[a-zA-Z0-9]{8,16}$")) { ErrorMessage = "Пароль: 8-16 символів"; return; }
@@ -153,7 +156,18 @@ namespace ClientAppe.ViewModels
             });
             LogoutCommand = new RelayCommand(o => { ApiService.CurrentUser = null; _mainViewModel.NavigateTo(new AuthViewModel(_mainViewModel), false); });
 
-            ShowProfileTabCommand = new RelayCommand(o => { ActiveTab = "Profile"; AppMessage = ""; RestMessage = ""; });
+            ShowProfileTabCommand = new RelayCommand(async o => {
+                ActiveTab = "Profile";
+                AppMessage = "";
+                RestMessage = "";
+
+                var freshProfile = await _apiService.GetProfileAsync();
+                if (freshProfile != null)
+                {
+                    ApiService.CurrentUser = freshProfile;
+                    User = freshProfile;
+                }
+            });
             ShowApplicationTabCommand = new RelayCommand(o => { ActiveTab = "Application"; AppFullName = ""; AppPhone = User?.Phone; AppEmail = User?.Email; });
             ShowAddRestaurantTabCommand = new RelayCommand(async o => {
                 ActiveTab = "AddRestaurant";
@@ -193,15 +207,55 @@ namespace ClientAppe.ViewModels
 
             SubmitApplicationCommand = new RelayCommand(async o => {
                 if (string.IsNullOrWhiteSpace(AppFullName) || string.IsNullOrWhiteSpace(AppPhone) || string.IsNullOrWhiteSpace(AppEmail))
-                { AppMessageColor = "#EF4444"; AppMessage = "Будь ласка, заповніть усі обов'язкові поля!"; return; }
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Будь ласка, заповніть усі обов'язкові поля!";
+                    return;
+                }
 
-                AppMessageColor = "#10B981"; AppMessage = "Відправка...";
+                if (!Regex.IsMatch(AppPhone, _phoneRegex))
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Некоректний телефон! Формат: +380... або 0...";
+                    return;
+                }
+                if (!Regex.IsMatch(AppEmail, _emailRegex))
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Некоректний формат Email!";
+                    return;
+                }
+
+                AppMessageColor = "#10B981";
+                AppMessage = "Відправка...";
+
+                string currentStatus = await _apiService.GetApplicationStatusAsync();
+                if (currentStatus == "Pending")
+                {
+                    AppMessageColor = "#EAB308"; 
+                    AppMessage = "Ваша заявка вже розглядається адміністратором!";
+                    return;
+                }
+                if (currentStatus == "Approved" || User.Role == "Owner")
+                {
+                    AppMessageColor = "#10B981";
+                    AppMessage = "Ви вже є партнером! Перезайдіть у додаток, щоб побачити зміни.";
+                    return;
+                }
+
                 if (await _apiService.SubmitPartnerApplicationAsync(AppFullName, AppPhone, AppEmail, AppDescription))
                 {
+                    AppMessageColor = "#10B981";
                     AppMessage = "Заявку успішно відправлено! Очікуйте на рішення.";
-                    await Task.Delay(1500); ActiveTab = "Profile"; AppMessage = "";
+                    await Task.Delay(1500);
+                    ActiveTab = "Profile";
+                    AppMessage = "";
                 }
-                else { AppMessageColor = "#EF4444"; AppMessage = "Помилка відправки."; }
+                else
+                {
+                    AppMessageColor = "#EF4444";
+                    AppMessage = "Помилка відправки. Перевірте з'єднання з сервером.";
+                }
             });
 
             AddMenuFieldCommand = new RelayCommand(o => {
@@ -335,9 +389,17 @@ namespace ClientAppe.ViewModels
                     {
                         RestMessageColor = "#EF4444"; RestMessage = "Помилка: Заповніть усі поля для кожної страви!"; return;
                     }
-                    if (food.Price <= 0)
+                    if (!food.Price.HasValue)
                     {
-                        RestMessageColor = "#EF4444"; RestMessage = $"Помилка: Ціна для '{food.Name}' повинна бути більше 0!"; return;
+                        RestMessageColor = "#EF4444";
+                        RestMessage = $"Помилка: Поле ціни для страви '{food.Name}' не може бути пустим!";
+                        return;
+                    }
+                    if (food.Price.Value <= 0)
+                    {
+                        RestMessageColor = "#EF4444";
+                        RestMessage = $"Помилка: Ціна для '{food.Name}' повинна бути більше 0!";
+                        return;
                     }
                 }
 
@@ -395,7 +457,17 @@ namespace ClientAppe.ViewModels
         }
         private async void LoadProfile()
         {
-            User = await _apiService.GetProfileAsync() ?? new UserModel { Login = "Гість" };
+            var freshProfile = await _apiService.GetProfileAsync();
+
+            if (freshProfile != null)
+            {
+                User = freshProfile;
+                ApiService.CurrentUser = freshProfile;
+            }
+            else
+            {
+                User = new UserModel { Login = "Гість" };
+            }
         }
     }
 }

@@ -139,8 +139,26 @@ namespace ClientAppe.Services
 
         public async Task<UserModel> GetProfileAsync()
         {
-            // повертаємо юзера
-            await Task.Delay(100);
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync("users/me");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var freshUser = JsonSerializer.Deserialize<UserModel>(jsonResponse, options);
+
+                    if (freshUser != null)
+                    {
+                        freshUser.Token = CurrentUser?.Token;
+
+                        CurrentUser = freshUser;
+                    }
+                }
+            }
+            catch (Exception) {}
+
             return CurrentUser ?? new UserModel();
         }
         public async Task<bool> UpdateProfileAsync(UserModel updatedUser)
@@ -237,16 +255,28 @@ namespace ClientAppe.Services
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync("applications/my-status");
+
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
                     using var doc = JsonDocument.Parse(json);
-                    return doc.RootElement.GetProperty("status").GetString();
+
+                    // Шукаємо ключ "Status" (з великої) або "status" (з маленької)
+                    if (doc.RootElement.TryGetProperty("Status", out var statusEl) ||
+                        doc.RootElement.TryGetProperty("status", out statusEl))
+                    {
+                        return statusEl.GetString() ?? "None";
+                    }
                 }
+
                 return "None";
             }
-            catch { return "None"; }
+            catch
+            {
+                return "None";
+            }
         }
+
         public async Task<bool> CreateRestaurantAsync(RestaurantModel restaurant)
         {
             try

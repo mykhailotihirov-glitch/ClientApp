@@ -56,16 +56,13 @@ namespace ClientAppe.ViewModels
                 string category = param as string ?? "Всі заклади";
                 NavigateTo(new RestaurantsViewModel(this, category));
             });
-            // Стартуємо з форми авторизації
             NavigateTo(new AuthViewModel(this), false);
         }
 
-        // МЕТОДИ НАВІГАЦІЇ (ГОЛОВНЕ ВІКНО)
         public void NavigateTo(ViewModelBase nextViewModel, bool saveToHistory = true)
         {
             if (nextViewModel == null) return;
 
-            // Зберігаємо поточну сторінку в стек перед переходом
             if (saveToHistory && CurrentViewModel != null)
             {
                 _history.Push(CurrentViewModel);
@@ -78,24 +75,20 @@ namespace ClientAppe.ViewModels
         {
             if (_history.Count > 0)
             {
-                // Дістаємо попередню сторінку зі стеку
                 CurrentViewModel = _history.Pop();
             }
         }
 
-        // Спеціальний перехід до деталей ресторану
         public void NavigateToDetails(RestaurantModel restaurant)
         {
             if (restaurant != null)
             {
-                NavigateTo(new RestaurantDetailsViewModel(this, restaurant, _cartService)); // Додав _cartService, якщо раптом ти з меню щось додаєш в кошик
+                NavigateTo(new RestaurantDetailsViewModel(this, restaurant, _cartService));
             }
         }
 
-        // ЛОГІКА МОДУЛЬНОГО ВІКНА КОШИКА
         public void OpenCartWindow()
         {
-            // Перевірка, щоб не відкрити кошик двічі
             if (_openedCartWindow != null)
             {
                 _openedCartWindow.Activate();
@@ -119,7 +112,6 @@ namespace ClientAppe.ViewModels
         {
             IsSuccessMessageVisible = true;
 
-            // Повертаємо головне вікно на головну сторінку
             NavigateTo(new HomeViewModel(this), false);
 
             _history.Clear();
